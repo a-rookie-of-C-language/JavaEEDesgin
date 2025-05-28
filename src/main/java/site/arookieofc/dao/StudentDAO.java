@@ -1,6 +1,6 @@
 package site.arookieofc.dao;
 
-import site.arookieofc.annotation.SQL;
+import site.arookieofc.annotation.sql.SQL;
 import site.arookieofc.entity.Student;
 
 import java.util.List;

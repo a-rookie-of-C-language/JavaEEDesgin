@@ -1,20 +1,15 @@
-package site.arookieofc.annotation;
+package site.arookieofc.annotation.web;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+@Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface SQL {
+public @interface PathVariable {
     /**
-     * SQL语句
+     * 路径变量名称
      */
     String value();
-    
-    /**
-     * 操作类型：SELECT, INSERT, UPDATE, DELETE
-     */
-    String type() default "SELECT";
 }

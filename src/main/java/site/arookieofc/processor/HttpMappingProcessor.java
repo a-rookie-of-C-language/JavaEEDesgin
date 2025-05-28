@@ -1,6 +1,7 @@
 package site.arookieofc.processor;
 
-import site.arookieofc.annotation.*;
+import lombok.AllArgsConstructor;
+import site.arookieofc.annotation.web.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,7 +19,6 @@ public class HttpMappingProcessor extends HttpServlet {
     private static final Map<String, MethodInfo> deleteMappings = new HashMap<>();
     
     static {
-        // 在静态块中扫描并注册所有带注解的方法
         scanAndRegisterMappings();
     }
     
@@ -118,14 +118,10 @@ public class HttpMappingProcessor extends HttpServlet {
             }
         }
     }
-    
+    @AllArgsConstructor
     private static class MethodInfo {
         final Method method;
         final Class<?> controllerClass;
-        
-        MethodInfo(Method method, Class<?> controllerClass) {
-            this.method = method;
-            this.controllerClass = controllerClass;
-        }
+
     }
 }

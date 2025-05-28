@@ -1,6 +1,6 @@
 package site.arookieofc.processor;
 
-import site.arookieofc.annotation.SQL;
+import site.arookieofc.annotation.sql.SQL;
 import site.arookieofc.utils.DatabaseUtil;
 
 import java.lang.reflect.Field;
@@ -39,15 +39,12 @@ public class SQLExecutor {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (returnType == Optional.class) {
-                    // 处理Optional返回类型
                     Class<?> entityType = getGenericType(method);
                     if (entityType.equals(List.class)) {
-                        // Optional<List<Entity>>
                         Class<?> listEntityType = getListGenericType(method);
                         List<Object> results = mapResultSetToList(rs, listEntityType);
                         return Optional.ofNullable(results.isEmpty() ? null : results);
                     } else {
-                        // Optional<Entity>
                         if (rs.next()) {
                             Object entity = mapResultSetToEntity(rs, entityType);
                             return Optional.of(entity);
@@ -56,11 +53,9 @@ public class SQLExecutor {
                         }
                     }
                 } else if (returnType == List.class) {
-                    // 处理List返回类型
                     Class<?> entityType = getListGenericType(method);
                     return mapResultSetToList(rs, entityType);
                 } else {
-                    // 处理单个实体返回类型
                     if (rs.next()) {
                         return mapResultSetToEntity(rs, returnType);
                     }

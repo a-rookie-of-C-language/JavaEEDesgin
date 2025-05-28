@@ -1,0 +1,8 @@
+jdbc:
+  url: jdbc:mysql://localhost:3306/mydb
+  username: root
+  password: password
+web:
+  controller: site.arookieofc.controller
+server:
+  port: 8080

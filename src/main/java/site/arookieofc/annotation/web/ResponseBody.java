@@ -1,4 +1,4 @@
-package site.arookieofc.annotation;
+package site.arookieofc.annotation.web;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,14 +7,9 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GetMapping {
+public @interface ResponseBody {
     /**
-     * 请求路径
+     * 响应内容类型
      */
-    String value();
-    
-    /**
-     * 请求路径的别名
-     */
-    String[] path() default {};
+    String contentType() default "application/json";
 }

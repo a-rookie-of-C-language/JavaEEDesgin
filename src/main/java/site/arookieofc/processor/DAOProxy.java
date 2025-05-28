@@ -1,6 +1,6 @@
 package site.arookieofc.processor;
 
-import site.arookieofc.annotation.SQL;
+import site.arookieofc.annotation.sql.SQL;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -18,12 +18,11 @@ public class DAOProxy implements InvocationHandler {
     }
     
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) {
         if (method.isAnnotationPresent(SQL.class)) {
             return SQLExecutor.executeSQL(method, args, method.getReturnType());
         }
-        
-        // 如果没有@SQL注解，抛出异常
+
         throw new UnsupportedOperationException("Method " + method.getName() + " must be annotated with @SQL");
     }
 }

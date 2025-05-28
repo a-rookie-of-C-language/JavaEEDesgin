@@ -1,4 +1,4 @@
-package site.arookieofc.annotation;
+package site.arookieofc.annotation.web;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface PutMapping {
+public @interface GetMapping {
     /**
      * 请求路径
      */
