@@ -1,4 +1,4 @@
-package site.arookieofc.processor;
+package site.arookieofc.processor.sql;
 
 import site.arookieofc.annotation.sql.SQL;
 import site.arookieofc.utils.DatabaseUtil;
@@ -105,30 +105,58 @@ public class SQLExecutor {
             Object entity = entityType.getDeclaredConstructor().newInstance();
             Field[] fields = entityType.getDeclaredFields();
             
+            System.out.println("Mapping entity: " + entityType.getSimpleName());
+            
             for (Field field : fields) {
-                field.setAccessible(true);
                 String columnName = field.getName();
+                String setterName = "set" + Character.toUpperCase(columnName.charAt(0)) + columnName.substring(1);
                 
                 try {
+                    Method setter = entityType.getMethod(setterName, field.getType());
                     Object value = rs.getObject(columnName);
+                    
+                    System.out.println("Field: " + columnName + ", Value: " + value + ", Type: " + (value != null ? value.getClass().getSimpleName() : "null"));
+                    
                     if (value != null) {
-                        field.set(entity, value);
+                        // 类型转换
+                        if (field.getType() == String.class && !(value instanceof String)) {
+                            value = value.toString();
+                        } else if (field.getType() == Integer.class && value instanceof Number) {
+                            value = ((Number) value).intValue();
+                        }
+                        setter.invoke(entity, value);
+                        System.out.println("Successfully set " + columnName + " = " + value);
                     }
-                } catch (SQLException e1) {
+                } catch (SQLException | NoSuchMethodException e1) {
+                    System.out.println("Failed to get column " + columnName + ", trying underscore version");
                     try {
                         String underscoreColumnName = camelToUnderscore(columnName);
                         Object value = rs.getObject(underscoreColumnName);
+                        System.out.println("Underscore column: " + underscoreColumnName + ", Value: " + value);
+                        
                         if (value != null) {
-                            field.set(entity, value);
+                            Method setter = entityType.getMethod(setterName, field.getType());
+                            // 类型转换
+                            if (field.getType() == String.class && !(value instanceof String)) {
+                                value = value.toString();
+                            } else if (field.getType() == Integer.class && value instanceof Number) {
+                                value = ((Number) value).intValue();
+                            }
+                            setter.invoke(entity, value);
+                            System.out.println("Successfully set " + columnName + " = " + value + " (from underscore column)");
                         }
-                    } catch (SQLException e2) {
-                        // 忽略不存在的列
+                    } catch (SQLException | NoSuchMethodException e2) {
+                        System.out.println("Failed to map field: " + columnName + ", Error: " + e2.getMessage());
                     }
+                } catch (Exception e) {
+                    System.out.println("Error setting field " + columnName + ": " + e.getMessage());
                 }
             }
             
+            System.out.println("Final entity: " + entity);
             return entity;
         } catch (Exception e) {
+            System.out.println("Failed to create entity: " + e.getMessage());
             throw new RuntimeException("Failed to map ResultSet to entity", e);
         }
     }
@@ -139,10 +167,45 @@ public class SQLExecutor {
     
     private static List<Object> mapResultSetToList(ResultSet rs, Class<?> entityType) throws SQLException {
         List<Object> results = new ArrayList<>();
-        while (rs.next()) {
-            results.add(mapResultSetToEntity(rs, entityType));
+        
+        // 检查是否为基本类型或包装类型
+        if (isPrimitiveOrWrapper(entityType)) {
+            while (rs.next()) {
+                // 对于基本类型，直接从第一列获取值
+                Object value = rs.getObject(1);
+                if (value != null) {
+                    // 进行必要的类型转换
+                    if (entityType == String.class) {
+                        results.add(value.toString());
+                    } else if (entityType == Integer.class && value instanceof Number) {
+                        results.add(((Number) value).intValue());
+                    } else {
+                        results.add(value);
+                    }
+                }
+            }
+        } else {
+            // 对于复杂对象，使用原有的映射逻辑
+            while (rs.next()) {
+                results.add(mapResultSetToEntity(rs, entityType));
+            }
         }
+        
         return results;
+    }
+    
+    // 添加辅助方法来检查是否为基本类型
+    private static boolean isPrimitiveOrWrapper(Class<?> clazz) {
+        return clazz.isPrimitive() || 
+               clazz == String.class ||
+               clazz == Integer.class ||
+               clazz == Long.class ||
+               clazz == Double.class ||
+               clazz == Float.class ||
+               clazz == Boolean.class ||
+               clazz == Character.class ||
+               clazz == Byte.class ||
+               clazz == Short.class;
     }
     
     private static Class<?> getGenericType(Method method) {

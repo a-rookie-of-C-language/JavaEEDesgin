@@ -10,17 +10,6 @@ import axios from 'axios'
 axios.defaults.baseURL = 'http://localhost:8080'
 axios.defaults.timeout = 10000
 
-// 响应拦截器
-axios.interceptors.response.use(
-  response => {
-    return response.data
-  },
-  error => {
-    console.error('请求错误:', error)
-    return Promise.reject(error)
-  }
-)
-
 const app = createApp(App)
 
 // 注册Element Plus

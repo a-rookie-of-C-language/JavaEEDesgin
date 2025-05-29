@@ -1,6 +1,4 @@
-package site.arookieofc.factory;
-
-import site.arookieofc.processor.SQLExecutor;
+package site.arookieofc.processor.sql;
 
 import java.lang.reflect.Proxy;
 import java.util.concurrent.ConcurrentHashMap;

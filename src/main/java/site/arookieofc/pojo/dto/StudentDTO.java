@@ -9,6 +9,7 @@ public class StudentDTO {
     private Integer age;
     private String teacherId;
     private String clazz;
+    private String teacherName; // 仅用于数据传输，不对应数据库字段
     
     /**
      * 转换为实体

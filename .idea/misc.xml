@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="5">
+    <list size="6">
       <item index="0" class="java.lang.String" itemvalue="site.arookieofc.annotation.web.Controller" />
       <item index="1" class="java.lang.String" itemvalue="site.arookieofc.annotation.web.DeleteMapping" />
       <item index="2" class="java.lang.String" itemvalue="site.arookieofc.annotation.web.GetMapping" />
       <item index="3" class="java.lang.String" itemvalue="site.arookieofc.annotation.web.PostMapping" />
       <item index="4" class="java.lang.String" itemvalue="site.arookieofc.annotation.web.PutMapping" />
+      <item index="5" class="java.lang.String" itemvalue="site.arookieofc.annotation.web.RequestMapping" />
     </list>
     <writeAnnotations>
       <writeAnnotation name="Config" />

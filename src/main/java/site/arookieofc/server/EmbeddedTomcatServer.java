@@ -2,7 +2,7 @@ package site.arookieofc.server;
 
 import org.apache.catalina.startup.Tomcat;
 import site.arookieofc.annotation.config.Config;
-import site.arookieofc.processor.ConfigProcessor;
+import site.arookieofc.processor.config.ConfigProcessor;
 
 import java.io.File;
 

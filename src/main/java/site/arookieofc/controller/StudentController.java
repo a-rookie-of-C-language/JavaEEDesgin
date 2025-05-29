@@ -10,29 +10,36 @@ import site.arookieofc.pojo.dto.StudentDTO;
 import site.arookieofc.entity.Student;
 import site.arookieofc.service.StudentService;
 import site.arookieofc.service.impl.StudentServiceImpl;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import site.arookieofc.processor.transaction.TransactionInterceptor;
 
 @Controller("/student")
 public class StudentController {
-
-    private final StudentService studentService = new StudentServiceImpl();
+    private final StudentService studentService = TransactionInterceptor.createProxy(new StudentServiceImpl());
     private final TeacherService teacherService = new TeacherServiceImpl();
     
-    @GetMapping("/list")
+    @GetMapping("/page")
     public Result getStudentList(@RequestParam("page") int page,
                                @RequestParam(value = "size", defaultValue = "10") int size) {
         try {
             PageResult<Student> pageResult = studentService.getStudentsByPage(page, size);
             
-            // 转换为DTO
+            // 转换为DTO并填充教师姓名
             List<StudentDTO> studentDTOs = pageResult.getData().stream()
-                    .map(Student::toDTO)
+                    .map(student -> {
+                        StudentDTO dto = student.toDTO();
+                        // 根据teacherId获取教师姓名
+                        if (student.getTeacherId() != null) {
+                            Optional<Teacher> teacher = teacherService.getTeacherById(student.getTeacherId());
+                            teacher.ifPresent(t -> dto.setTeacherName(t.getName()));
+                        }
+                        return dto;
+                    })
                     .collect(Collectors.toList());
             
-            // 创建包含分页信息的结果
             PageResult<StudentDTO> dtoPageResult = new PageResult<>(
                 studentDTOs, 
                 pageResult.getTotal(), 
@@ -130,6 +137,25 @@ public class StudentController {
         }
     }
 
+    @RequestMapping("/list")
+    public Result getAllStudents() {
+        try {
+            List<Student> students = studentService.getAllStudents();
+            List<StudentDTO> studentDTOs = new ArrayList<>();
+            for (Student student : students) {
+                StudentDTO dto = StudentDTO.fromEntity(student);
+                if (student.getTeacherId() != null) {
+                    Optional<Teacher> teacher = teacherService.getTeacherById(student.getTeacherId());
+                    teacher.ifPresent(value -> dto.setTeacherName(value.getName()));
+                }
+                studentDTOs.add(dto);
+            }
+            return Result.success(studentDTOs);
+        } catch (Exception e) {
+            return Result.error();
+        }
+    }
+    
     @GetMapping("/teachers")
     public Result getAllTeachers() {
         try {
@@ -139,11 +165,11 @@ public class StudentController {
             return Result.error("获取教师列表失败: " + e.getMessage());
         }
     }
-
+    
     @GetMapping("/classes")
     public Result getAllClasses() {
         try {
-            List<String> classes = teacherService.getAllClasses();
+            List<String> classes = teacherService.getAllClassNames();
             return Result.success("获取班级列表成功", classes);
         } catch (Exception e) {
             return Result.error("获取班级列表失败: " + e.getMessage());

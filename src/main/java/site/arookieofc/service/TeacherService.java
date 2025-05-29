@@ -11,7 +11,8 @@ public interface TeacherService {
 
     Optional<Teacher> getTeacherById(String id);
 
-    List<String> getAllClasses();
+    // 重命名方法
+    List<String> getAllClassNames();
 
     void addTeacher(Teacher teacher);
 

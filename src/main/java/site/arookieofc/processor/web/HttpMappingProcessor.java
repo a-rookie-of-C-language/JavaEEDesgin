@@ -1,4 +1,4 @@
-package site.arookieofc.processor;
+package site.arookieofc.processor.web;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -167,6 +167,40 @@ public class HttpMappingProcessor extends HttpServlet {
             registerMethodMapping(method, controllerClass, basePath, PostMapping.class, postMappings);
             registerMethodMapping(method, controllerClass, basePath, PutMapping.class, putMappings);
             registerMethodMapping(method, controllerClass, basePath, DeleteMapping.class, deleteMappings);
+            
+            // 添加对 RequestMapping 的支持
+            registerRequestMapping(method, controllerClass, basePath);
+        }
+    }
+
+    // 添加新的方法处理 RequestMapping
+    private static void registerRequestMapping(Method method, Class<?> controllerClass, String basePath) {
+        if (method.isAnnotationPresent(RequestMapping.class)) {
+            RequestMapping annotation = method.getAnnotation(RequestMapping.class);
+            String path = annotation.value();
+            RequestMethod requestMethod = annotation.method();
+            
+            String fullPath = basePath.isEmpty() ? path : basePath + path;
+            if (!fullPath.startsWith("/")) {
+                fullPath = "/" + fullPath;
+            }
+            
+            MethodInfo methodInfo = new MethodInfo(method, controllerClass);
+            
+            switch (requestMethod) {
+                case GET:
+                    getMappings.put(fullPath, methodInfo);
+                    break;
+                case POST:
+                    postMappings.put(fullPath, methodInfo);
+                    break;
+                case PUT:
+                    putMappings.put(fullPath, methodInfo);
+                    break;
+                case DELETE:
+                    deleteMappings.put(fullPath, methodInfo);
+                    break;
+            }
         }
     }
 

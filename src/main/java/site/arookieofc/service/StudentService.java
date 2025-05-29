@@ -27,4 +27,9 @@ public interface StudentService {
     List<Student> getStudentsByTeacher(String teacherId);
 
     List<Student> getStudentsByTeacherId(String teacherId);
+
+    // 添加批量操作方法
+    void addStudentsBatch(List<Student> students);
+
+    void deleteStudentsBatch(List<Integer> ids);
 }

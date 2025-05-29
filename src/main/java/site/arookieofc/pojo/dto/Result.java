@@ -5,11 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Getter  // 添加Lombok的@Getter注解
+@Getter
 public class Result {
     private int code;
     private String msg;
     private Object data;
+
+    // 添加isSuccess方法
+    public boolean isSuccess() {
+        return code == 200;
+    }
 
     public static Result success(String msg, Object data) {
         return new Result(200, msg, data);

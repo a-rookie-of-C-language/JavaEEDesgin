@@ -1,4 +1,4 @@
-package site.arookieofc.processor;
+package site.arookieofc.processor.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

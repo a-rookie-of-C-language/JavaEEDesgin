@@ -29,5 +29,14 @@ public interface StudentDAO {
     @SQL("SELECT * FROM student WHERE teacherId = ?")
     List<Student> getStudentsByTeacherId(String teacherId);
 
+    // 为这个方法添加@SQL注解
+    @SQL("SELECT * FROM student WHERE teacherId = ?")
     List<Student> getStudentsByTeacher(String teacherId);
+    
+    // 添加之前提到的缺失方法
+    @SQL("SELECT * FROM student LIMIT ? OFFSET ?")
+    List<Student> getStudentsByPage(int limit, int offset);
+    
+    @SQL("SELECT COUNT(*) FROM student")
+    long getTotalStudentCount();
 }

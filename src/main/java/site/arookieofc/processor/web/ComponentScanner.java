@@ -1,10 +1,11 @@
-package site.arookieofc.processor;
+package site.arookieofc.processor.web;
 
 import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.config.Application;
 import site.arookieofc.annotation.config.ComponentScan;
 import site.arookieofc.annotation.config.Config;
 import site.arookieofc.annotation.web.Controller;
+import site.arookieofc.processor.config.ConfigProcessor;
 
 import java.io.File;
 import java.net.URL;
