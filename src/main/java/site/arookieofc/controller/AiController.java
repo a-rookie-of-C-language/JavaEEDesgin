@@ -7,6 +7,7 @@ import site.arookieofc.pojo.dto.Result;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller("/ai")
 public class AiController {
@@ -25,6 +26,92 @@ public class AiController {
             return Result.success("对话成功", Map.of("response", aiResponse));
         } catch (Exception e) {
             return Result.error("AI对话失败: " + e.getMessage());
+        }
+    }
+    
+    @PostMapping("/chat-session")
+    public Result chatWithSession(@RequestBody Map<String, String> request) {
+        try {
+            String sessionId = request.get("sessionId");
+            String userId = request.get("userId");
+            String message = request.get("message");
+            
+            if (message == null || message.trim().isEmpty()) {
+                return Result.error("消息内容不能为空");
+            }
+            
+            // 如果没有sessionId，生成一个新的
+            if (sessionId == null || sessionId.trim().isEmpty()) {
+                sessionId = UUID.randomUUID().toString();
+            }
+            
+            String aiResponse = aiService.chatWithSession(sessionId, userId, message);
+            return Result.success("会话对话成功", Map.of(
+                "response", aiResponse,
+                "sessionId", sessionId
+            ));
+        } catch (Exception e) {
+            return Result.error("AI会话对话失败: " + e.getMessage());
+        }
+    }
+    
+    @PostMapping("/chat-function")
+    public Result chatWithFunction(@RequestBody Map<String, String> request) {
+        try {
+            String sessionId = request.get("sessionId");
+            String userId = request.get("userId");
+            String message = request.get("message");
+            
+            if (message == null || message.trim().isEmpty()) {
+                return Result.error("消息内容不能为空");
+            }
+            
+            // 如果没有sessionId，生成一个新的
+            if (sessionId == null || sessionId.trim().isEmpty()) {
+                sessionId = UUID.randomUUID().toString();
+            }
+            
+            String aiResponse = aiService.chatWithFunctionCall(sessionId, userId, message);
+            return Result.success("函数调用对话成功", Map.of(
+                "response", aiResponse,
+                "sessionId", sessionId
+            ));
+        } catch (Exception e) {
+            return Result.error("AI函数调用对话失败: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/history/{sessionId}")
+    public Result getSessionHistory(@PathVariable String sessionId) {
+        try {
+            List<Map<String, Object>> history = aiService.getSessionHistory(sessionId);
+            return Result.success("获取历史记录成功", Map.of("history", history));
+        } catch (Exception e) {
+            return Result.error("获取历史记录失败: " + e.getMessage());
+        }
+    }
+    
+    @GetMapping("/sessions/{userId}")
+    public Result getUserSessions(@PathVariable String userId) {
+        try {
+            List<String> sessions = aiService.getUserSessions(userId);
+            return Result.success("获取用户会话成功", Map.of("sessions", sessions));
+        } catch (Exception e) {
+            return Result.error("获取用户会话失败: " + e.getMessage());
+        }
+    }
+    
+    @DeleteMapping("/session/{sessionId}")
+    public Result deleteSession(@PathVariable String sessionId) {
+        try {
+            boolean success = aiService.deleteSession(sessionId);
+            if (success) {
+                return Result.success("删除会话成功", null);
+            } else {
+                return Result.error("删除会话失败");
+            }
+        } catch (Exception e) {
+            return Result.error("删除会话失败: " + e.getMessage());
         }
     }
     
