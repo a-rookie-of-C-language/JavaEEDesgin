@@ -5,7 +5,7 @@ import site.arookieofc.entity.Teacher;
 import site.arookieofc.pojo.dto.PageResult;
 import site.arookieofc.service.TeacherService;
 import site.arookieofc.service.impl.TeacherServiceImpl;
-import site.arookieofc.utils.Result;
+import site.arookieofc.pojo.dto.Result;
 import site.arookieofc.pojo.dto.StudentDTO;
 import site.arookieofc.entity.Student;
 import site.arookieofc.service.StudentService;
@@ -129,10 +129,7 @@ public class StudentController {
             return Result.error("获取教师学生失败: " + e.getMessage());
         }
     }
-    
-    /**
-     * 获取所有教师列表
-     */
+
     @GetMapping("/teachers")
     public Result getAllTeachers() {
         try {
@@ -142,10 +139,7 @@ public class StudentController {
             return Result.error("获取教师列表失败: " + e.getMessage());
         }
     }
-    
-    /**
-     * 获取所有班级列表
-     */
+
     @GetMapping("/classes")
     public Result getAllClasses() {
         try {

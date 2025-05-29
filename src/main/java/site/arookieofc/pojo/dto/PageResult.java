@@ -10,11 +10,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PageResult<T> {
-    private List<T> data;     // 当前页数据
-    private long total;       // 总记录数
-    private int page;         // 当前页码
-    private int size;         // 每页大小
-    private int totalPages;   // 总页数
+    private List<T> data;
+    private long total;
+    private int page;
+    private int size;
+    private int totalPages;
     
     public PageResult(List<T> data, long total, int page, int size) {
         this.data = data;

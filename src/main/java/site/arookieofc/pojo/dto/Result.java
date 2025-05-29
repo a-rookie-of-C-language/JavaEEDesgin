@@ -1,4 +1,4 @@
-package site.arookieofc.utils;
+package site.arookieofc.pojo.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

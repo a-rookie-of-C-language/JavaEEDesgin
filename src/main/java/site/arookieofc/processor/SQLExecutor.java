@@ -100,7 +100,7 @@ public class SQLExecutor {
         }
     }
     
-    private static Object mapResultSetToEntity(ResultSet rs, Class<?> entityType) throws SQLException {
+    private static Object mapResultSetToEntity(ResultSet rs, Class<?> entityType) {
         try {
             Object entity = entityType.getDeclaredConstructor().newInstance();
             Field[] fields = entityType.getDeclaredFields();
@@ -110,14 +110,12 @@ public class SQLExecutor {
                 String columnName = field.getName();
                 
                 try {
-                    // 首先尝试原字段名
                     Object value = rs.getObject(columnName);
                     if (value != null) {
                         field.set(entity, value);
                     }
                 } catch (SQLException e1) {
                     try {
-                        // 如果失败，尝试下划线命名
                         String underscoreColumnName = camelToUnderscore(columnName);
                         Object value = rs.getObject(underscoreColumnName);
                         if (value != null) {
@@ -134,8 +132,7 @@ public class SQLExecutor {
             throw new RuntimeException("Failed to map ResultSet to entity", e);
         }
     }
-    
-    // 添加驼峰转下划线的辅助方法
+
     private static String camelToUnderscore(String camelCase) {
         return camelCase.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
     }

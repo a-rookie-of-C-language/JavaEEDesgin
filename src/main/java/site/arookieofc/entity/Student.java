@@ -10,10 +10,7 @@ public class Student {
     private Integer age;
     private String teacherId;
     private String clazz;
-    
-    /**
-     * 转换为DTO
-     */
+
     public StudentDTO toDTO() {
         StudentDTO dto = new StudentDTO();
         dto.setId(this.id);
@@ -23,10 +20,7 @@ public class Student {
         dto.setClazz(this.clazz);
         return dto;
     }
-    
-    /**
-     * 从DTO创建实体
-     */
+
     public static Student fromDTO(StudentDTO dto) {
         if (dto == null) {
             return null;
@@ -39,10 +33,7 @@ public class Student {
         student.setClazz(dto.getClazz());
         return student;
     }
-    
-    /**
-     * 更新实体信息（从DTO）
-     */
+
     public void updateFromDTO(StudentDTO dto) {
         if (dto == null) {
             return;

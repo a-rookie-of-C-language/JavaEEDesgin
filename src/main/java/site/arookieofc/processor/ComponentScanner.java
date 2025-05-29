@@ -1,5 +1,6 @@
 package site.arookieofc.processor;
 
+import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.config.Application;
 import site.arookieofc.annotation.config.ComponentScan;
 import site.arookieofc.annotation.config.Config;
@@ -11,34 +12,34 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
+@Slf4j
 public class ComponentScanner {
     
     @Config("web.controller")
     private static String controllerPackage;
     
     static {
-        // 注入配置值
         controllerPackage = ConfigProcessor.getStringValue("web.controller", "site.arookieofc.controller");
     }
     
     public static void scanAndRegisterControllers() {
         try {
-            List<Class<?>> classes = scanPackage(controllerPackage);
-            for (Class<?> clazz : classes) {
-                if (clazz.isAnnotationPresent(Controller.class)) {
-                    HttpMappingProcessor.registerController(clazz);
-                    // 移除重复注册
-                    // EnhancedHttpProcessor.registerController(clazz);
-                    System.out.println("Registered controller: " + clazz.getName());
-                }
-            }
+            registerControllers(controllerPackage);
         } catch (Exception e) {
-            System.err.println("Failed to scan controllers: " + e.getMessage());
-            e.printStackTrace();
+            log.error(e.getMessage(), e);
         }
     }
-    
+
+    private static void registerControllers(String controllerPackage) {
+        List<Class<?>> classes = scanPackage(controllerPackage);
+        for (Class<?> clazz : classes) {
+            if (clazz.isAnnotationPresent(Controller.class)) {
+                HttpMappingProcessor.registerController(clazz);
+                System.out.println("Registered controller: " + clazz.getName());
+            }
+        }
+    }
+
     public static void scanAndRegisterControllers(Class<?> applicationClass) {
         try {
             List<String> packagesToScan = new ArrayList<>();
@@ -54,33 +55,22 @@ public class ComponentScanner {
                     }
                 }
             }
-            
-            // 检查是否直接有@ComponentScan注解
+
             if (applicationClass.isAnnotationPresent(ComponentScan.class)) {
                 ComponentScan componentScan = applicationClass.getAnnotation(ComponentScan.class);
                 packagesToScan.addAll(Arrays.asList(componentScan.value()));
                 packagesToScan.addAll(Arrays.asList(componentScan.basePackages()));
             }
-            
-            // 如果没有指定包，使用应用类所在包
+
             if (packagesToScan.isEmpty()) {
                 packagesToScan.add(applicationClass.getPackage().getName());
             }
-            
-            // 扫描所有指定的包 - 只注册到HttpMappingProcessor
+
             for (String packageName : packagesToScan) {
-                List<Class<?>> classes = scanPackage(packageName);
-                for (Class<?> clazz : classes) {
-                    if (clazz.isAnnotationPresent(Controller.class)) {
-                        HttpMappingProcessor.registerController(clazz);
-                        // 移除这行：EnhancedHttpProcessor.registerController(clazz);
-                        System.out.println("Registered controller: " + clazz.getName());
-                    }
-                }
+                registerControllers(packageName);
             }
         } catch (Exception e) {
-            System.err.println("Failed to scan controllers: " + e.getMessage());
-            e.printStackTrace();
+           log.error(e.getMessage(), e);
         }
     }
     

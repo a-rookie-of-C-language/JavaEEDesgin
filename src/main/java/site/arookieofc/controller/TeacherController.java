@@ -4,7 +4,7 @@ import site.arookieofc.annotation.web.*;
 import site.arookieofc.entity.Teacher;
 import site.arookieofc.service.TeacherService;
 import site.arookieofc.service.impl.TeacherServiceImpl;
-import site.arookieofc.utils.Result;
+import site.arookieofc.pojo.dto.Result;
 
 import java.util.List;
 

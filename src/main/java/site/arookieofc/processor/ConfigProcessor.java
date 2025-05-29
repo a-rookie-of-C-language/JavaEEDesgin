@@ -143,7 +143,6 @@ public class ConfigProcessor {
                 String keyPath = configAnnotation.value();
                 String defaultValue = configAnnotation.defaultValue();
                 boolean required = configAnnotation.required();
-                
                 try {
                     field.setAccessible(true);
                     Object configValue = getConfigValue(keyPath);
@@ -155,7 +154,6 @@ public class ConfigProcessor {
                             throw new RuntimeException("Required config property '" + keyPath + "' not found");
                         }
                     }
-                    
                     if (configValue != null) {
                         Object convertedValue = convertValue(configValue, field.getType());
                         field.set(target, convertedValue);
@@ -193,7 +191,7 @@ public class ConfigProcessor {
                     
                     if (configValue != null) {
                         Object convertedValue = convertValue(configValue, field.getType());
-                        field.set(null, convertedValue); // 静态字段设置为null
+                        field.set(null, convertedValue);
                     }
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Failed to inject config for static field: " + field.getName(), e);

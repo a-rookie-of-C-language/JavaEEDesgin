@@ -20,7 +20,6 @@ public interface StudentDAO {
     @SQL(value = "DELETE FROM student WHERE id = ?", type = "DELETE")
     boolean deleteStudent(int id);
 
-    // 改为：
     @SQL("SELECT * FROM student")
     List<Student> getAllStudents();
     
