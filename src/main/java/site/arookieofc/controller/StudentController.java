@@ -26,8 +26,6 @@ public class StudentController {
                                @RequestParam(value = "size", defaultValue = "10") int size) {
         try {
             PageResult<Student> pageResult = studentService.getStudentsByPage(page, size);
-            
-            // 转换为DTO并填充教师姓名
             List<StudentDTO> studentDTOs = pageResult.getData().stream()
                     .map(student -> {
                         StudentDTO dto = student.toDTO();
@@ -39,7 +37,6 @@ public class StudentController {
                         return dto;
                     })
                     .collect(Collectors.toList());
-            
             PageResult<StudentDTO> dtoPageResult = new PageResult<>(
                 studentDTOs, 
                 pageResult.getTotal(), 
