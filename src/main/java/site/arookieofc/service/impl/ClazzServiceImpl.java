@@ -1,5 +1,6 @@
 package site.arookieofc.service.impl;
 
+import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.annotation.transactional.Transactional;
 import site.arookieofc.annotation.transactional.Propagation;
 import site.arookieofc.dao.ClazzDAO;
@@ -7,15 +8,16 @@ import site.arookieofc.entity.Clazz;
 import site.arookieofc.entity.Student;
 import site.arookieofc.entity.Teacher;
 import site.arookieofc.processor.sql.DAOFactory;
+import site.arookieofc.processor.transaction.TransactionInterceptor;
 import site.arookieofc.service.ClazzService;
 import site.arookieofc.service.StudentService;
 import site.arookieofc.service.TeacherService;
-import site.arookieofc.processor.transaction.TransactionInterceptor;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Collections;
 
+@Component
 public class ClazzServiceImpl implements ClazzService {
     
     private final ClazzDAO clazzDAO = DAOFactory.getDAO(ClazzDAO.class);

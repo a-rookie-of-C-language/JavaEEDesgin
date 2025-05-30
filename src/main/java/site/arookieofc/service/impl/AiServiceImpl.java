@@ -6,19 +6,19 @@ import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import site.arookieofc.annotation.config.Config;
+import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.dao.ChatHistoryDAO;
 import site.arookieofc.entity.ChatHistory;
 import site.arookieofc.processor.sql.DAOFactory;
 import site.arookieofc.service.AiService;
 import site.arookieofc.service.FunctionCallService;
-import site.arookieofc.service.impl.FunctionCallServiceImpl;
 import site.arookieofc.utils.ModelUtil;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+@Component
 public class AiServiceImpl implements AiService {
     
     @Config("ai.url")
@@ -33,7 +33,7 @@ public class AiServiceImpl implements AiService {
     
     // Function call的正则表达式模式
     private static final Pattern FUNCTION_CALL_PATTERN = Pattern.compile(
-        "<function_call>\\s*\\{([^}]+)\\}\\s*</function_call>"
+            "<function_call>\\s*\\{([^}]+)}\\s*</function_call>"
     );
     
     @Override
@@ -151,7 +151,8 @@ public class AiServiceImpl implements AiService {
             return "抱歉，AI服务暂时不可用，请稍后再试。";
         }
     }
-    
+
+    @SuppressWarnings("unchecked")
     private String buildSystemPromptWithFunctions() {
         Map<String, Object> functions = functionCallService.getAvailableFunctions();
         StringBuilder prompt = new StringBuilder();
@@ -172,7 +173,8 @@ public class AiServiceImpl implements AiService {
         
         return prompt.toString();
     }
-    
+
+    @SuppressWarnings("unchecked")
     private String processFunctionCalls(String aiResponse, String sessionId, String userId) {
         Matcher matcher = FUNCTION_CALL_PATTERN.matcher(aiResponse);
         StringBuilder result = new StringBuilder(aiResponse);

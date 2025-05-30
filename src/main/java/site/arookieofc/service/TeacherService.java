@@ -1,5 +1,6 @@
 package site.arookieofc.service;
 
+import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.entity.Teacher;
 
 import java.util.List;
@@ -11,7 +12,6 @@ public interface TeacherService {
 
     Optional<Teacher> getTeacherById(String id);
 
-    // 重命名方法
     List<String> getAllClassNames();
 
     void addTeacher(Teacher teacher);

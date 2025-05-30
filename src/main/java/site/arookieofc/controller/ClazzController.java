@@ -1,17 +1,20 @@
 package site.arookieofc.controller;
 
 import site.arookieofc.annotation.web.*;
+import site.arookieofc.annotation.ioc.Autowired;
+import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.entity.Clazz;
 import site.arookieofc.service.ClazzService;
-import site.arookieofc.service.impl.ClazzServiceImpl;
 import site.arookieofc.pojo.dto.Result;
 
 import java.util.List;
 
 @Controller("/class")
+@Component
 public class ClazzController {
     
-    private final ClazzService clazzService = new ClazzServiceImpl();
+    @Autowired
+    private ClazzService clazzService;
     
     @GetMapping("/list")
     public Result getAllClasses() {

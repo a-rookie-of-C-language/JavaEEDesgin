@@ -1,8 +1,9 @@
 package site.arookieofc.controller;
 
 import site.arookieofc.annotation.web.*;
+import site.arookieofc.annotation.ioc.Autowired;
+import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.service.AiService;
-import site.arookieofc.service.impl.AiServiceImpl;
 import site.arookieofc.pojo.dto.Result;
 
 import java.util.List;
@@ -10,9 +11,11 @@ import java.util.Map;
 import java.util.UUID;
 
 @Controller("/ai")
+@Component
 public class AiController {
     
-    private final AiService aiService = new AiServiceImpl();
+    @Autowired
+    private AiService aiService;
     
     @PostMapping("/chat")
     public Result chat(@RequestBody Map<String, String> request) {

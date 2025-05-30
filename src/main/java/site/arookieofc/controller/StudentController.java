@@ -1,25 +1,30 @@
 package site.arookieofc.controller;
 
 import site.arookieofc.annotation.web.*;
+import site.arookieofc.annotation.ioc.Autowired;
+import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.entity.Teacher;
 import site.arookieofc.pojo.dto.PageResult;
 import site.arookieofc.service.TeacherService;
-import site.arookieofc.service.impl.TeacherServiceImpl;
 import site.arookieofc.pojo.dto.Result;
 import site.arookieofc.pojo.dto.StudentDTO;
 import site.arookieofc.entity.Student;
 import site.arookieofc.service.StudentService;
-import site.arookieofc.service.impl.StudentServiceImpl;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import site.arookieofc.processor.transaction.TransactionInterceptor;
 
 @Controller("/student")
+@Component
 public class StudentController {
-    private final StudentService studentService = TransactionInterceptor.createProxy(new StudentServiceImpl());
-    private final TeacherService teacherService = new TeacherServiceImpl();
+    
+    @Autowired
+    private StudentService studentService;
+    
+    @Autowired
+    private TeacherService teacherService;
     
     @GetMapping("/page")
     public Result getStudentList(@RequestParam("page") int page,
@@ -29,7 +34,6 @@ public class StudentController {
             List<StudentDTO> studentDTOs = pageResult.getData().stream()
                     .map(student -> {
                         StudentDTO dto = student.toDTO();
-                        // 根据teacherId获取教师姓名
                         if (student.getTeacherId() != null) {
                             Optional<Teacher> teacher = teacherService.getTeacherById(student.getTeacherId());
                             teacher.ifPresent(t -> dto.setTeacherName(t.getName()));

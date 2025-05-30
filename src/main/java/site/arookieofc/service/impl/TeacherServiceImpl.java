@@ -1,6 +1,8 @@
 package site.arookieofc.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import site.arookieofc.annotation.ioc.Component;
+import site.arookieofc.annotation.ioc.Autowired;
 import site.arookieofc.annotation.transactional.Propagation;
 import site.arookieofc.annotation.transactional.Transactional;
 import site.arookieofc.dao.TeacherDAO;
@@ -11,17 +13,21 @@ import site.arookieofc.processor.sql.DAOFactory;
 import site.arookieofc.service.ClazzService;
 import site.arookieofc.service.StudentService;
 import site.arookieofc.service.TeacherService;
-import site.arookieofc.processor.transaction.TransactionInterceptor;
 
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
+@Component
 public class TeacherServiceImpl implements TeacherService {
 
     private final TeacherDAO teacherDAO = DAOFactory.getDAO(TeacherDAO.class);
-    private final StudentService studentService = TransactionInterceptor.createProxy(new StudentServiceImpl());
-    private final ClazzService clazzService = TransactionInterceptor.createProxy(new ClazzServiceImpl());
+    
+    @Autowired
+    private StudentService studentService;
+    
+    @Autowired
+    private ClazzService clazzService;
 
     @Override
     public List<Teacher> getAllTeachers() {

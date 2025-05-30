@@ -1,17 +1,20 @@
 package site.arookieofc.controller;
 
 import site.arookieofc.annotation.web.*;
+import site.arookieofc.annotation.ioc.Autowired;
+import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.entity.Teacher;
 import site.arookieofc.service.TeacherService;
-import site.arookieofc.service.impl.TeacherServiceImpl;
 import site.arookieofc.pojo.dto.Result;
 
 import java.util.List;
 
 @Controller("/teacher")
+@Component
 public class TeacherController {
     
-    private final TeacherService teacherService = new TeacherServiceImpl();
+    @Autowired
+    private TeacherService teacherService;
     
     @GetMapping("/list")
     public Result getAllTeachers() {

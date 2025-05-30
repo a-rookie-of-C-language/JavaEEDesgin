@@ -1,5 +1,7 @@
 package site.arookieofc.service.impl;
 
+import site.arookieofc.annotation.ioc.Component;
+import site.arookieofc.annotation.ioc.Autowired;
 import site.arookieofc.annotation.transactional.Transactional;
 import site.arookieofc.annotation.transactional.Propagation;
 import site.arookieofc.dao.StudentDAO;
@@ -11,25 +13,21 @@ import site.arookieofc.service.StudentService;
 import site.arookieofc.service.ClazzService;
 import site.arookieofc.pojo.dto.PageResult;
 import site.arookieofc.service.TeacherService;
-import site.arookieofc.processor.transaction.TransactionInterceptor;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Collections;
 
+@Component
 public class StudentServiceImpl implements StudentService {
     
     private final StudentDAO studentDAO = DAOFactory.getDAO(StudentDAO.class);
-    private final ClazzService clazzService = TransactionInterceptor.createProxy(new ClazzServiceImpl());
-    private TeacherService teacherService = null; // 初始化为null
     
-    // 添加一个获取TeacherService的方法
-    private TeacherService getTeacherService() {
-        if (teacherService == null) {
-            teacherService = TransactionInterceptor.createProxy(new TeacherServiceImpl());
-        }
-        return teacherService;
-    }
+    @Autowired
+    private ClazzService clazzService;
+    
+    @Autowired
+    private TeacherService teacherService;
     
     @Override
     public Optional<Student> getStudentById(int id) {
@@ -45,31 +43,8 @@ public class StudentServiceImpl implements StudentService {
         if (student == null) {
             throw new IllegalArgumentException("学生信息不能为空");
         }
-        if (student.getName() == null || student.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("学生姓名不能为空");
-        }
-        if (student.getAge() <= 0 || student.getAge() > 150) {
-            throw new IllegalArgumentException("学生年龄必须在1-150之间");
-        }
-        if (student.getClazz() == null || student.getClazz().trim().isEmpty()) {
-            throw new IllegalArgumentException("学生班级不能为空");
-        }
-        
-        // 验证班级是否存在
-        Optional<Clazz> clazz = clazzService.getClassById(student.getClazz());
-        if (clazz.isEmpty()) {
-            throw new IllegalArgumentException("指定的班级不存在");
-        }
-        
-        // 如果指定了教师ID，验证教师是否存在
-        if (student.getTeacherId() != null && !student.getTeacherId().trim().isEmpty()) {
-            // 使用延迟初始化的teacherService
-            Optional<Teacher> teacher = getTeacherService().getTeacherById(student.getTeacherId());
-            if (teacher.isEmpty()) {
-                throw new IllegalArgumentException("指定的教师不存在");
-            }
-        }
-        
+        extracted(student);
+
         // 添加学生
         studentDAO.addStudent(student.getName(), student.getAge(), 
                             student.getTeacherId(), student.getClazz());
@@ -77,13 +52,8 @@ public class StudentServiceImpl implements StudentService {
         // 更新班级学生数量 +1
         clazzService.updateStudentCount(student.getClazz(), 1);
     }
-    
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateStudent(Student student) {
-        if (student == null || student.getId() <= 0) {
-            throw new IllegalArgumentException("无效的学生信息");
-        }
+
+    private void extracted(Student student) {
         if (student.getName() == null || student.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("学生姓名不能为空");
         }
@@ -93,23 +63,29 @@ public class StudentServiceImpl implements StudentService {
         if (student.getClazz() == null || student.getClazz().trim().isEmpty()) {
             throw new IllegalArgumentException("学生班级不能为空");
         }
-        
+
         // 验证班级是否存在
         Optional<Clazz> clazz = clazzService.getClassById(student.getClazz());
         if (clazz.isEmpty()) {
             throw new IllegalArgumentException("指定的班级不存在");
         }
-        
-        // 如果指定了教师ID，验证教师是否存在
+
         if (student.getTeacherId() != null && !student.getTeacherId().trim().isEmpty()) {
-            // 使用延迟初始化的teacherService
-            Optional<Teacher> teacher = getTeacherService().getTeacherById(student.getTeacherId());
+            Optional<Teacher> teacher = teacherService.getTeacherById(student.getTeacherId());
             if (teacher.isEmpty()) {
                 throw new IllegalArgumentException("指定的教师不存在");
             }
         }
-        
-        // 获取原学生信息
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void updateStudent(Student student) {
+        if (student == null || student.getId() <= 0) {
+            throw new IllegalArgumentException("无效的学生信息");
+        }
+        extracted(student);
+
         Optional<Student> originalStudentOpt = getStudentById(student.getId());
         if (originalStudentOpt.isEmpty()) {
             throw new RuntimeException("学生不存在");

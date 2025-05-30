@@ -67,7 +67,8 @@ public class HttpMappingProcessor extends HttpServlet {
 
         if (methodInfo != null) {
             try {
-                Object controller = methodInfo.controllerClass.getConstructors()[0].newInstance();
+                // 修改这里：从IOC容器获取控制器实例，而不是直接创建
+                Object controller = site.arookieofc.processor.ioc.ApplicationContextHolder.getBean(methodInfo.controllerClass);
                 resp.setHeader("Access-Control-Allow-Origin", "*");
                 resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
                 resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");

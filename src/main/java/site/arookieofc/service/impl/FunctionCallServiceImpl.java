@@ -1,18 +1,16 @@
 package site.arookieofc.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.dao.StudentDAO;
 import site.arookieofc.dao.TeacherDAO;
 import site.arookieofc.dao.ClazzDAO;
-import site.arookieofc.entity.Student;
-import site.arookieofc.entity.Teacher;
-import site.arookieofc.entity.Clazz;
 import site.arookieofc.processor.sql.DAOFactory;
 import site.arookieofc.service.FunctionCallService;
 
 import java.util.*;
 import java.util.function.Function;
-
+@Component
 public class FunctionCallServiceImpl implements FunctionCallService {
     
     private final Map<String, Function<Map<String, Object>, Object>> functions = new HashMap<>();
@@ -159,6 +157,7 @@ public class FunctionCallServiceImpl implements FunctionCallService {
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     public void registerFunction(String functionName, Object functionHandler) {
         if (functionHandler instanceof Function) {
             functions.put(functionName, (Function<Map<String, Object>, Object>) functionHandler);
