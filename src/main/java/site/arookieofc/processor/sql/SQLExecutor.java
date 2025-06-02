@@ -1,6 +1,8 @@
 package site.arookieofc.processor.sql;
 
 import site.arookieofc.annotation.sql.SQL;
+import site.arookieofc.processor.transaction.TransactionManager;
+import site.arookieofc.processor.transaction.TransactionStatus;
 import site.arookieofc.utils.DatabaseUtil;
 
 import java.lang.reflect.Field;
@@ -22,11 +24,43 @@ public class SQLExecutor {
         String sql = sqlAnnotation.value();
         String type = sqlAnnotation.type().toUpperCase();
         
-        try (Connection conn = DatabaseUtil.getConnection()) {
-            if ("SELECT".equals(type)) {
-                return (T) executeQuery(conn, sql, args, returnType, method);
+        // 首先尝试获取当前事务的连接
+        Connection conn = null;
+        boolean closeConnection = true;
+        boolean isTransactional = false;
+        
+        try {
+            TransactionStatus currentStatus = TransactionManager.getCurrentTransaction();
+            if (currentStatus != null && !currentStatus.isCompleted()) {
+                conn = currentStatus.getConnection();
+                closeConnection = false; // 不关闭事务连接
+                isTransactional = true;  // 标记为事务环境
             } else {
-                return (T) executeUpdate(conn, sql, args, returnType);
+                conn = DatabaseUtil.getConnection();
+            }
+            
+            try {
+                Object result;
+                if ("SELECT".equals(type)) {
+                    result = executeQuery(conn, sql, args, returnType, method);
+                } else {
+                    result = executeUpdate(conn, sql, args, returnType);
+                }
+                
+                // 如果不是在事务环境中，手动提交
+                if (!isTransactional) {
+                    conn.commit();
+                }
+                
+                return (T) result;
+            } finally {
+                if (closeConnection && conn != null) {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        // 忽略关闭连接时的异常
+                    }
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException("SQL execution failed", e);
@@ -113,40 +147,30 @@ public class SQLExecutor {
                 
                 try {
                     Method setter = entityType.getMethod(setterName, field.getType());
-                    Object value = rs.getObject(columnName);
+                    Object value = null;
                     
-                    System.out.println("Field: " + columnName + ", Value: " + value + ", Type: " + (value != null ? value.getClass().getSimpleName() : "null"));
+                    // 优先尝试下划线格式
+                    try {
+                        String underscoreColumnName = camelToUnderscore(columnName);
+                        value = rs.getObject(underscoreColumnName);
+                    } catch (SQLException e1) {
+                        // 如果下划线格式失败，尝试驼峰格式
+                        try {
+                            value = rs.getObject(columnName);
+                        } catch (SQLException e2) {
+                            System.out.println("Failed to map field: " + columnName);
+                            continue;
+                        }
+                    }
                     
                     if (value != null) {
-                        // 类型转换
+                        // 类型转换逻辑保持不变
                         if (field.getType() == String.class && !(value instanceof String)) {
                             value = value.toString();
                         } else if (field.getType() == Integer.class && value instanceof Number) {
                             value = ((Number) value).intValue();
                         }
                         setter.invoke(entity, value);
-                        System.out.println("Successfully set " + columnName + " = " + value);
-                    }
-                } catch (SQLException | NoSuchMethodException e1) {
-                    System.out.println("Failed to get column " + columnName + ", trying underscore version");
-                    try {
-                        String underscoreColumnName = camelToUnderscore(columnName);
-                        Object value = rs.getObject(underscoreColumnName);
-                        System.out.println("Underscore column: " + underscoreColumnName + ", Value: " + value);
-                        
-                        if (value != null) {
-                            Method setter = entityType.getMethod(setterName, field.getType());
-                            // 类型转换
-                            if (field.getType() == String.class && !(value instanceof String)) {
-                                value = value.toString();
-                            } else if (field.getType() == Integer.class && value instanceof Number) {
-                                value = ((Number) value).intValue();
-                            }
-                            setter.invoke(entity, value);
-                            System.out.println("Successfully set " + columnName + " = " + value + " (from underscore column)");
-                        }
-                    } catch (SQLException | NoSuchMethodException e2) {
-                        System.out.println("Failed to map field: " + columnName + ", Error: " + e2.getMessage());
                     }
                 } catch (Exception e) {
                     System.out.println("Error setting field " + columnName + ": " + e.getMessage());

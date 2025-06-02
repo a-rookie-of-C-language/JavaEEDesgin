@@ -11,8 +11,7 @@ import site.arookieofc.server.EmbeddedTomcatServer;
 public class Main {
     public static void main(String[] args) {
         try {
-            AnnotationApplicationContext applicationContext = 
-                new AnnotationApplicationContext("site.arookieofc");
+            AnnotationApplicationContext applicationContext = new AnnotationApplicationContext();
             ApplicationContextHolder.setApplicationContext(applicationContext);
             log.info("IOC容器初始化完成");
             EmbeddedTomcatServer.start();

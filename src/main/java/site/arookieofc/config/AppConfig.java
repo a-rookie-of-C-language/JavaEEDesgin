@@ -23,4 +23,9 @@ public class AppConfig {
     public ClazzService clazzService() {
         return TransactionInterceptor.createProxy(new ClazzServiceImpl());
     }
+    
+    @Bean
+    public AiService aiService() {
+        return new AiServiceImpl();
+    }
 }

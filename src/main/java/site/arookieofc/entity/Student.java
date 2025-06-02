@@ -5,7 +5,7 @@ import site.arookieofc.pojo.dto.StudentDTO;
 
 @Data
 public class Student {
-    private Integer id;
+    private String id;
     private String name;
     private Integer age;
     private String teacherId;

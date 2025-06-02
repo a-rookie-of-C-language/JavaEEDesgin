@@ -9,4 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PostMapping {
     String value() default "";
+    String[] produces() default {};
+    String[] consumes() default {};
 }

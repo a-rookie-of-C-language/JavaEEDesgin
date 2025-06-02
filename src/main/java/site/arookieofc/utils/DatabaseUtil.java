@@ -3,10 +3,12 @@ package site.arookieofc.utils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import site.arookieofc.annotation.config.Config;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DatabaseUtil {
+
     @Config("jdbc.url")
     private static String URL;
 
@@ -25,7 +27,7 @@ public class DatabaseUtil {
         }
         return dataSource.getConnection();
     }
-    
+
     private static synchronized void initializeDataSource() {
         if (initialized) {
             return; // 双重检查锁定
@@ -53,7 +55,7 @@ public class DatabaseUtil {
         config.addDataSourceProperty("rewriteBatchedStatements", "true");
         config.addDataSourceProperty("cacheResultSetMetadata", "true");
         config.addDataSourceProperty("cacheServerConfiguration", "true");
-        config.addDataSourceProperty("elideSetAutoCommits", "true");
+        config.addDataSourceProperty("elideSetAutoCommits", "false"); // 修改为false
         config.addDataSourceProperty("maintainTimeStats", "false");
         return config;
     }
@@ -64,6 +66,7 @@ public class DatabaseUtil {
         config.setUsername(USERNAME);
         config.setPassword(PASSWORD);
         config.setMaximumPoolSize(20);          // 最大连接数
+        config.setAutoCommit(false);
         config.setMinimumIdle(5);               // 最小空闲连接数
         config.setConnectionTimeout(30000);     // 连接超时时间(30秒)
         config.setIdleTimeout(600000);          // 空闲连接超时时间(10分钟)
@@ -76,7 +79,7 @@ public class DatabaseUtil {
         if (!initialized || dataSource == null) {
             return "连接池未初始化";
         }
-        
+
         return String.format("连接池状态 - 活跃连接: %d, 空闲连接: %d, 总连接数: %d, 等待连接的线程数: %d",
                 dataSource.getHikariPoolMXBean().getActiveConnections(),
                 dataSource.getHikariPoolMXBean().getIdleConnections(),

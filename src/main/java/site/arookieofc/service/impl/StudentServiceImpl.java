@@ -17,26 +17,27 @@ import site.arookieofc.service.TeacherService;
 import java.util.List;
 import java.util.Optional;
 import java.util.Collections;
+import java.util.UUID;
 
 @Component
 public class StudentServiceImpl implements StudentService {
-    
+
     private final StudentDAO studentDAO = DAOFactory.getDAO(StudentDAO.class);
-    
+
     @Autowired
     private ClazzService clazzService;
-    
+
     @Autowired
     private TeacherService teacherService;
-    
+
     @Override
-    public Optional<Student> getStudentById(int id) {
-        if (id <= 0) {
+    public Optional<Student> getStudentById(String id) {
+        if (id.isEmpty()) {
             return Optional.empty();
         }
         return studentDAO.getStudentById(id);
     }
-    
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void addStudent(Student student) {
@@ -45,11 +46,9 @@ public class StudentServiceImpl implements StudentService {
         }
         extracted(student);
 
-        // 添加学生
-        studentDAO.addStudent(student.getName(), student.getAge(), 
-                            student.getTeacherId(), student.getClazz());
-        
-        // 更新班级学生数量 +1
+        studentDAO.addStudent(UUID.randomUUID().toString(), student.getName(), student.getAge(),
+                student.getTeacherId(), student.getClazz());
+
         clazzService.updateStudentCount(student.getClazz(), 1);
     }
 
@@ -81,7 +80,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void updateStudent(Student student) {
-        if (student == null || student.getId() <= 0) {
+        if (student == null || student.getId().isEmpty()) {
             throw new IllegalArgumentException("无效的学生信息");
         }
         extracted(student);
@@ -90,18 +89,18 @@ public class StudentServiceImpl implements StudentService {
         if (originalStudentOpt.isEmpty()) {
             throw new RuntimeException("学生不存在");
         }
-        
+
         Student originalStudent = originalStudentOpt.get();
         String originalClass = originalStudent.getClazz();
         String newClass = student.getClazz();
-        
+
         // 更新学生信息
-        boolean updated = studentDAO.updateStudent(student.getName(), student.getAge(), 
-                                                 student.getTeacherId(), student.getClazz(), student.getId());
+        boolean updated = studentDAO.updateStudent(student.getName(), student.getAge(),
+                student.getTeacherId(), student.getClazz(), student.getId());
         if (!updated) {
             throw new RuntimeException("更新学生信息失败");
         }
-        
+
         // 如果班级发生变化，需要同步更新两个班级的学生数量
         if (!originalClass.equals(newClass)) {
             // 原班级 -1
@@ -110,35 +109,35 @@ public class StudentServiceImpl implements StudentService {
             clazzService.updateStudentCount(newClass, 1);
         }
     }
-    
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteStudent(int id) {
-        if (id <= 0) {
+    public void deleteStudent(String id) {
+        if (id.isEmpty()) {
             throw new IllegalArgumentException("无效的学生ID");
         }
-        
+
         // 获取学生信息（用于获取班级）
         Optional<Student> studentOpt = getStudentById(id);
         if (studentOpt.isEmpty()) {
             throw new RuntimeException("学生不存在");
         }
-        
+
         Student student = studentOpt.get();
         String classId = student.getClazz();
-        
+
         // 删除学生
         boolean deleted = studentDAO.deleteStudent(id);
         if (!deleted) {
             throw new RuntimeException("删除学生失败，可能学生不存在");
         }
-        
+
         // 更新班级学生数量 -1
         if (classId != null && !classId.trim().isEmpty()) {
             clazzService.updateStudentCount(classId, -1);
         }
     }
-    
+
     @Override
     public List<Student> getAllStudents() {
         try {
@@ -149,31 +148,31 @@ public class StudentServiceImpl implements StudentService {
             return Collections.emptyList();
         }
     }
-    
+
     @Override
     public PageResult<Student> getStudentsByPage(int page, int size) {
         if (page <= 0 || size <= 0) {
             return new PageResult<>(Collections.emptyList(), 0, page, size);
         }
-        
+
         // 获取总数
         long total = getTotalStudentCount();
-        
+
         // 获取所有学生然后进行分页（简单实现）
         List<Student> allStudents = getAllStudents();
         int startIndex = (page - 1) * size;
         int endIndex = Math.min(startIndex + size, allStudents.size());
-        
+
         List<Student> pageData;
         if (startIndex >= allStudents.size()) {
             pageData = Collections.emptyList();
         } else {
             pageData = allStudents.subList(startIndex, endIndex);
         }
-        
+
         return new PageResult<>(pageData, total, page, size);
     }
-    
+
     @Override
     public long getTotalStudentCount() {
         try {
@@ -183,7 +182,7 @@ public class StudentServiceImpl implements StudentService {
             return 0;
         }
     }
-    
+
     @Override
     public List<Student> getStudentsByClass(String clazz) {
         try {
@@ -193,7 +192,7 @@ public class StudentServiceImpl implements StudentService {
             return Collections.emptyList();
         }
     }
-    
+
     @Override
     public List<Student> getStudentsByTeacher(String teacherId) {
         try {
@@ -215,7 +214,7 @@ public class StudentServiceImpl implements StudentService {
         if (students == null || students.isEmpty()) {
             return;
         }
-        
+
         for (Student student : students) {
             addStudent(student); // 复用已有的添加方法，保持事务一致性
         }
@@ -223,12 +222,12 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteStudentsBatch(List<Integer> ids) {
+    public void deleteStudentsBatch(List<String> ids) {
         if (ids == null || ids.isEmpty()) {
             return;
         }
-        
-        for (Integer id : ids) {
+
+        for (String id : ids) {
             deleteStudent(id); // 复用已有的删除方法，保持事务一致性
         }
     }

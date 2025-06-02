@@ -26,6 +26,6 @@ public interface ClazzDAO {
     @SQL("SELECT * FROM class WHERE teacherId = ?")
     List<Clazz> getClassesByTeacher(String teacherId);
 
-    @SQL(value = "UPDATE class SET studentCount = ? WHERE id = ?", type = "UPDATE")
-    boolean updateStudentCount(String classId, int newCount);
+    @SQL(value = "UPDATE class SET student_count = ? WHERE id = ?", type = "UPDATE")
+    boolean updateStudentCount(int newCount, String id);
 }

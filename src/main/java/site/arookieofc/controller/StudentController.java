@@ -55,7 +55,7 @@ public class StudentController {
     }
     
     @GetMapping("/info/{id}")
-    public Result getStudentInfo(@PathVariable("id") int id) {
+    public Result getStudentInfo(@PathVariable("id") String id) {
         try {
             Optional<Student> studentOpt = studentService.getStudentById(id);
             if (studentOpt.isPresent()) {
@@ -86,7 +86,7 @@ public class StudentController {
     }
     
     @PutMapping("/update/{id}")
-    public Result updateStudent(@PathVariable("id") int id, @RequestBody StudentDTO studentDTO) {
+    public Result updateStudent(@PathVariable("id") String id, @RequestBody StudentDTO studentDTO) {
         try {
             // 验证数据
             if (!studentDTO.isValid()) {
@@ -103,7 +103,7 @@ public class StudentController {
     }
     
     @DeleteMapping("/delete/{id}")
-    public Result deleteStudent(@PathVariable("id") int id) {
+    public Result deleteStudent(@PathVariable("id") String id) {
         try {
             studentService.deleteStudent(id);
             return Result.success("学生 " + id + " 删除成功");

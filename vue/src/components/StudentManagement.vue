@@ -113,12 +113,14 @@
   </div>
 </template>
 
+<!-- 保留原有模板结构，添加以下功能 -->
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+// 导入所需的组合式API
+import { ref, reactive, onMounted, watch } from 'vue'
 import axios from 'axios'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
-// 响应式数据
+// 状态管理
 const loading = ref(false)
 const students = ref([])
 const teachers = ref([])
@@ -140,92 +142,88 @@ const studentForm = reactive({
   name: '',
   age: null,
   clazz: '',
-  teacherId: '',
+  teacherId: ''
 })
 
 // 表单验证规则
 const rules = {
-  name: [{ required: true, message: '请输入学生姓名', trigger: 'blur' }],
-  age: [{ required: true, message: '请输入学生年龄', trigger: 'blur' }],
+  name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
+  age: [{ required: true, message: '请输入年龄', trigger: 'blur' }],
   clazz: [{ required: true, message: '请选择班级', trigger: 'change' }],
   teacherId: [{ required: true, message: '请选择班主任', trigger: 'change' }]
 }
+
+// 生命周期钩子
+onMounted(async () => {
+  await Promise.all([
+    getStudents(),
+    getTeachers(),
+    getClasses()
+  ])
+})
+
+// 监听搜索条件变化
+watch([searchClass, searchTeacher], () => {
+  handleSearch()
+})
 
 // 获取学生列表
 const getStudents = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/student/page', {
-      params: {
-        page: currentPage.value,
-        size: pageSize.value
-      }
-    })
+    const params = {
+      page: currentPage.value,
+      size: pageSize.value
+    }
+    
+    if (searchClass.value) {
+      params.clazz = searchClass.value
+    }
+    
+    if (searchTeacher.value) {
+      params.teacherId = searchTeacher.value
+    }
+    
+    const response = await axios.get('/student/page', { params })
     if (response.data.code === 200) {
-      console.log(response.data.data)
-      students.value = Array.isArray(response.data.data.data) ? response.data.data.data : []
+      students.value = response.data.data.data
       total.value = response.data.data.total
     } else {
-      ElMessage.error(response.data.message)
+      ElMessage.error(response.data.msg || '获取学生列表失败')
     }
   } catch (error) {
+    console.error('获取学生列表失败:', error)
     ElMessage.error('获取学生列表失败')
   } finally {
     loading.value = false
   }
 }
 
+// 获取教师列表
 const getTeachers = async () => {
   try {
-    const response = await axios.get('/student/teachers')
+    const response = await axios.get('/teacher/list')
     if (response.data.code === 200) {
       teachers.value = response.data.data
     }
   } catch (error) {
-    console.error('获取教师列表失败', error)
+    console.error('获取教师列表失败:', error)
   }
 }
 
+// 获取班级列表
 const getClasses = async () => {
   try {
-    const response = await axios.get('/student/classes')
+    const response = await axios.get('/class/list')
     if (response.data.code === 200) {
-      console.log(response.data.data)
-      classes.value = response.data.data
+      classes.value = response.data.data.map(c => c.name)
     }
   } catch (error) {
-    console.error('获取班级列表失败', error)
+    console.error('获取班级列表失败:', error)
   }
 }
 
-// 修复handleSearch方法中的响应访问
-const handleSearch = async () => {
-  if (searchClass.value) {
-    try {
-      const response = await axios.get(`/student/class/${searchClass.value}`)
-      if (response.data.code === 200) {  // 修复：使用response.data.code
-        students.value = response.data.data
-        total.value = response.data.data.length
-      }
-    } catch (error) {
-      ElMessage.error('搜索失败')
-    }
-  } else if (searchTeacher.value) {
-    try {
-      const response = await axios.get(`/student/teacher/${searchTeacher.value}`)
-      if (response.data.code === 200) {  // 修复：使用response.data.code
-        students.value = response.data.data
-        total.value = response.data.data.length
-      }
-    } catch (error) {
-      ElMessage.error('搜索失败')
-    }
-  } else {
-    getStudents()
-  }
-}
-
-// 修复submitForm方法
+// 提交表单
 const submitForm = async () => {
   if (!formRef.value) return
   
@@ -239,15 +237,16 @@ const submitForm = async () => {
           response = await axios.post('/student/add', studentForm)
         }
         
-        if (response.data.code === 200) {  // 修复：使用response.data.code
-          ElMessage.success(response.data.message)
+        if (response.data.code === 200) {
+          ElMessage.success(isEdit.value ? '更新成功' : '添加成功')
           dialogVisible.value = false
           getStudents()
         } else {
-          ElMessage.error(response.data.message)
+          ElMessage.error(response.data.msg || (isEdit.value ? '更新失败' : '添加失败'))
         }
       } catch (error) {
-        ElMessage.error(isEdit.value ? '更新学生失败' : '添加学生失败')
+        console.error(isEdit.value ? '更新学生失败:' : '添加学生失败:', error)
+        ElMessage.error(isEdit.value ? '更新失败' : '添加失败')
       }
     }
   })
@@ -323,13 +322,6 @@ const resetForm = () => {
     formRef.value.resetFields()
   }
 }
-
-// 组件挂载时获取数据
-onMounted(() => {
-  getStudents()
-  getTeachers()
-  getClasses()
-})
 </script>
 
 <style scoped>

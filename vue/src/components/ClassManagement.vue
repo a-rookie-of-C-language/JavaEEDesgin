@@ -78,7 +78,7 @@
         <el-table-column prop="teacherId" label="班主任ID" width="120" />
         <el-table-column label="班主任" width="120">
           <template #default="scope">
-            <span>{{ getTeacherName(scope.row.teacherId) }}</span>
+            <span>{{ getTeachers(scope.row.teacherId) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="学生人数" width="100">
@@ -175,79 +175,58 @@
   </div>
 </template>
 
+<!-- 保留原有模板结构，添加以下功能 -->
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
 import axios from 'axios'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
-// 响应式数据
+// 状态管理
 const loading = ref(false)
-const submitting = ref(false)
-const loadingStudents = ref(false)
 const classes = ref([])
 const teachers = ref([])
-const classStudents = ref([])
 const selectedClasses = ref([])
 const dialogVisible = ref(false)
 const studentDialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref()
 const currentClass = ref(null)
-
-// 搜索表单
-const searchForm = reactive({
-  name: '',
-  grade: '',
-  teacherId: ''
-})
+const classStudents = ref([])
 
 // 分页
 const pagination = reactive({
   currentPage: 1,
-  pageSize: 10
+  pageSize: 10,
+  total: 0
+})
+
+// 搜索表单
+const searchForm = reactive({
+  name: '',
+  teacherId: ''
 })
 
 // 班级表单
 const classForm = reactive({
   id: '',
   name: '',
-  description: '',
-  teacherId: ''
+  teacherId: '',
+  description: ''
 })
 
 // 表单验证规则
 const rules = {
   id: [{ required: true, message: '请输入班级ID', trigger: 'blur' }],
   name: [{ required: true, message: '请输入班级名称', trigger: 'blur' }],
-  teacherId: [{ required: true, message: '请选择班主任', trigger: 'change' }],
-  description: [{ required: true, message: '请输入班级描述', trigger: 'blur' }]
+  teacherId: [{ required: true, message: '请选择班主任', trigger: 'change' }]
 }
 
-// 计算属性 - 筛选后的班级列表
-const filteredClasses = computed(() => {
-  let result = classes.value
-  
-  if (searchForm.name) {
-    result = result.filter(cls => cls.name.includes(searchForm.name))
-  }
-  
-  if (searchForm.grade) {
-    result = result.filter(cls => cls.name.includes(searchForm.grade))
-  }
-  
-  if (searchForm.teacherId) {
-    result = result.filter(cls => cls.teacherId === searchForm.teacherId)
-  }
-  
-  return result
-})
-
-// 计算属性 - 分页后的班级列表
-const paginatedClasses = computed(() => {
-  const start = (pagination.currentPage - 1) * pagination.pageSize
-  const end = start + pagination.pageSize
-  return filteredClasses.value.slice(start, end)
+// 生命周期钩子
+onMounted(async () => {
+  await Promise.all([
+    getClasses(),
+    getTeachers()
+  ])
 })
 
 // 获取班级列表
@@ -257,8 +236,9 @@ const getClasses = async () => {
     const response = await axios.get('/class/list')
     if (response.data.code === 200) {
       classes.value = response.data.data
+      pagination.total = classes.value.length
     } else {
-      ElMessage.error(response.data.message || '获取班级列表失败')
+      ElMessage.error(response.data.msg || '获取班级列表失败')
     }
   } catch (error) {
     console.error('获取班级列表失败:', error)
@@ -274,192 +254,49 @@ const getTeachers = async () => {
     const response = await axios.get('/teacher/list')
     if (response.data.code === 200) {
       teachers.value = response.data.data
-    } else {
-      ElMessage.error(response.data.message || '获取教师列表失败')
     }
   } catch (error) {
     console.error('获取教师列表失败:', error)
   }
 }
 
-// 获取班级学生列表
-const getClassStudents = async (clazz) => {
-  loadingStudents.value = true
+// 获取班级学生
+const viewStudents = async (clazz) => {
+  currentClass.value = clazz
   try {
-    const response = await axios.get(`/student/class/${encodeURIComponent(clazz)}`)
+    const response = await axios.get(`/student/class/${clazz.name}`)
     if (response.data.code === 200) {
       classStudents.value = response.data.data
+      studentDialogVisible.value = true
     } else {
-      ElMessage.error(response.data.message || '获取学生列表失败')
+      ElMessage.error(response.data.msg || '获取学生列表失败')
     }
   } catch (error) {
     console.error('获取学生列表失败:', error)
     ElMessage.error('获取学生列表失败')
-  } finally {
-    loadingStudents.value = false
   }
 }
 
-// 根据教师ID获取教师姓名
-const getTeacherName = (teacherId) => {
-  const teacher = teachers.value.find(t => t.id === teacherId)
-  return teacher ? teacher.name : '未分配'
-}
-
-// 显示添加对话框
-const showAddDialog = () => {
-  isEdit.value = false
-  resetForm()
-  dialogVisible.value = true
-}
-
-// 显示编辑对话框
-const showEditDialog = (row) => {
-  isEdit.value = true
-  Object.assign(classForm, row)
-  dialogVisible.value = true
-}
-
-// 查看学生
-const viewStudents = (row) => {
-  currentClass.value = row
-  getClassStudents(row.name)
-  studentDialogVisible.value = true
-}
-
-// 重置表单
-const resetForm = () => {
-  Object.assign(classForm, {
-    id: '',
-    name: '',
-    description: '',
-    teacherId: ''
-  })
-  if (formRef.value) {
-    formRef.value.resetFields()
-  }
-}
-
-// 提交表单
-const submitForm = async () => {
-  if (!formRef.value) return
+// 过滤后的班级列表
+const filteredClasses = computed(() => {
+  let result = [...classes.value]
   
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      submitting.value = true
-      try {
-        let response
-        if (isEdit.value) {
-          response = await axios.put(`/class/update/${classForm.id}`, classForm)
-        } else {
-          response = await axios.post('/class/add', classForm)
-        }
-        
-        if (response.data.code === 200) {
-          ElMessage.success(response.data.message || (isEdit.value ? '更新成功' : '添加成功'))
-          dialogVisible.value = false
-          getClasses()
-        } else {
-          ElMessage.error(response.data.message || (isEdit.value ? '更新失败' : '添加失败'))
-        }
-      } catch (error) {
-        console.error('操作失败:', error)
-        ElMessage.error(isEdit.value ? '更新班级失败' : '添加班级失败')
-      } finally {
-        submitting.value = false
-      }
-    }
-  })
-}
-
-// 删除班级
-const deleteClass = async (id) => {
-  try {
-    await ElMessageBox.confirm('此操作将永久删除该班级, 是否继续?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    const response = await axios.delete(`/class/delete/${id}`)
-    if (response.data.code === 200) {
-      ElMessage.success('删除成功')
-      getClasses()
-    } else {
-      ElMessage.error(response.data.message || '删除失败')
-    }
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('删除失败:', error)
-      ElMessage.error('删除失败')
-    }
-  }
-}
-
-// 批量删除
-const batchDelete = async () => {
-  if (selectedClasses.value.length === 0) {
-    ElMessage.warning('请选择要删除的班级')
-    return
+  if (searchForm.name) {
+    result = result.filter(c => c.name.includes(searchForm.name))
   }
   
-  try {
-    await ElMessageBox.confirm(`确定要删除选中的 ${selectedClasses.value.length} 个班级吗？`, '批量删除', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-    
-    const deletePromises = selectedClasses.value.map(cls => 
-      axios.delete(`/class/delete/${cls.id}`)
-    )
-    
-    await Promise.all(deletePromises)
-    ElMessage.success('批量删除成功')
-    getClasses()
-  } catch (error) {
-    if (error !== 'cancel') {
-      console.error('批量删除失败:', error)
-      ElMessage.error('批量删除失败')
-    }
+  if (searchForm.teacherId) {
+    result = result.filter(c => c.teacherId === searchForm.teacherId)
   }
-}
+  
+  return result
+})
 
-// 处理搜索
-const handleSearch = () => {
-  pagination.currentPage = 1
-}
-
-// 重置搜索
-const resetSearch = () => {
-  Object.assign(searchForm, {
-    name: '',
-    grade: '',
-    teacherId: ''
-  })
-  pagination.currentPage = 1
-}
-
-// 处理选择变化
-const handleSelectionChange = (selection) => {
-  selectedClasses.value = selection
-}
-
-// 处理页面大小变化
-const handleSizeChange = (size) => {
-  pagination.pageSize = size
-  pagination.currentPage = 1
-}
-
-// 处理当前页变化
-const handleCurrentChange = (page) => {
-  pagination.currentPage = page
-}
-
-// 组件挂载时获取数据
-onMounted(() => {
-  getClasses()
-  getTeachers()
+// 分页数据
+const paginatedClasses = computed(() => {
+  const start = (pagination.currentPage - 1) * pagination.pageSize
+  const end = start + pagination.pageSize
+  return filteredClasses.value.slice(start, end)
 })
 </script>
 

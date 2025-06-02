@@ -5,6 +5,7 @@ import site.arookieofc.annotation.transactional.Transactional;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 
 public class TransactionInterceptor implements InvocationHandler {
     
@@ -59,23 +60,24 @@ public class TransactionInterceptor implements InvocationHandler {
             return result;
             
         } catch (Throwable ex) {
-            // 检查是否需要回滚
-            if (shouldRollback(transactional, ex)) {
-                if (status != null) {
-                    TransactionManager.rollback(status);
-                }
-            } else {
-                // 不需要回滚，提交事务
-                if (status != null) {
-                    TransactionManager.commit(status);
+            // 改进：始终回滚RuntimeException，不再检查shouldRollback
+            if (status != null) {
+                System.out.println("执行事务回滚: " + ex.getClass().getName());
+                TransactionManager.rollback(status);
+            }
+            
+            // 改进的异常处理逻辑
+            Throwable actualException = ex;
+            
+            // 处理InvocationTargetException
+            if (ex instanceof java.lang.reflect.InvocationTargetException) {
+                Throwable targetEx = ((java.lang.reflect.InvocationTargetException) ex).getTargetException();
+                if (targetEx != null) {
+                    actualException = targetEx;
                 }
             }
             
-            // 提取InvocationTargetException中的目标异常
-            if (ex instanceof java.lang.reflect.InvocationTargetException) {
-                throw ((java.lang.reflect.InvocationTargetException) ex).getTargetException();
-            }
-            throw ex;
+            throw actualException;
         }
     }
     
@@ -99,10 +101,35 @@ public class TransactionInterceptor implements InvocationHandler {
      */
     @SuppressWarnings("unchecked")
     public static <T> T createProxy(T target) {
+        // 获取目标类实现的所有接口，包括父类实现的接口
+        Class<?>[] interfaces = getAllInterfaces(target.getClass());
+        
         return (T) Proxy.newProxyInstance(
             target.getClass().getClassLoader(),
-            target.getClass().getInterfaces(),
+            interfaces,
             new TransactionInterceptor(target)
         );
+    }
+
+    /**
+     * 获取类实现的所有接口，包括父类实现的接口
+     */
+    private static Class<?>[] getAllInterfaces(Class<?> clazz) {
+        if (clazz == null) {
+            return new Class[0];
+        }
+        
+        // 使用Set避免重复接口
+
+        // 添加当前类实现的接口
+        java.util.Set<Class<?>> interfacesSet = new java.util.LinkedHashSet<>(Arrays.asList(clazz.getInterfaces()));
+        
+        // 递归添加父类实现的接口
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass != null && superclass != Object.class) {
+            interfacesSet.addAll(Arrays.asList(getAllInterfaces(superclass)));
+        }
+        
+        return interfacesSet.toArray(new Class<?>[0]);
     }
 }

@@ -64,15 +64,13 @@ public class ClazzServiceImpl implements ClazzService {
         if (clazz.getTeacherId() == null || clazz.getTeacherId().trim().isEmpty()) {
             throw new IllegalArgumentException("班主任ID不能为空");
         }
-        
-        // 验证教师ID是否存在
+
         TeacherService teacherService = TransactionInterceptor.createProxy(new TeacherServiceImpl());
         Optional<Teacher> teacher = teacherService.getTeacherById(clazz.getTeacherId());
         if (teacher.isEmpty()) {
             throw new IllegalArgumentException("指定的班主任不存在");
         }
-        
-        // 验证班级ID是否已存在
+
         Optional<Clazz> existingClazz = getClassById(clazz.getId());
         if (existingClazz.isPresent()) {
             throw new IllegalArgumentException("班级ID已存在");
@@ -101,14 +99,12 @@ public class ClazzServiceImpl implements ClazzService {
         if (clazz.getTeacherId() == null || clazz.getTeacherId().trim().isEmpty()) {
             throw new IllegalArgumentException("班主任ID不能为空");
         }
-        
-        // 验证班级是否存在
+
         Optional<Clazz> existingClazz = getClassById(clazz.getId());
         if (existingClazz.isEmpty()) {
             throw new IllegalArgumentException("班级不存在");
         }
-        
-        // 验证教师ID是否存在
+
         TeacherService teacherService = TransactionInterceptor.createProxy(new TeacherServiceImpl());
         Optional<Teacher> teacher = teacherService.getTeacherById(clazz.getTeacherId());
         if (teacher.isEmpty()) {
@@ -132,14 +128,12 @@ public class ClazzServiceImpl implements ClazzService {
         if (id == null || id.trim().isEmpty()) {
             throw new IllegalArgumentException("无效的班级ID");
         }
-        
-        // 检查班级是否存在
+
         Optional<Clazz> clazz = getClassById(id);
         if (clazz.isEmpty()) {
             throw new IllegalArgumentException("班级不存在");
         }
-        
-        // 检查班级是否有学生
+
         StudentService studentService = TransactionInterceptor.createProxy(new StudentServiceImpl());
         List<Student> students = studentService.getStudentsByClass(id);
         if (!students.isEmpty()) {
@@ -179,7 +173,6 @@ public class ClazzServiceImpl implements ClazzService {
         }
         
         try {
-            // 获取当前学生数量
             Optional<Clazz> clazzOpt = getClassById(classId);
             if (clazzOpt.isEmpty()) {
                 throw new RuntimeException("班级不存在: " + classId);
@@ -188,9 +181,8 @@ public class ClazzServiceImpl implements ClazzService {
             Clazz clazz = clazzOpt.get();
             int currentCount = clazz.getStudentCount() != null ? clazz.getStudentCount() : 0;
             int newCount = Math.max(0, currentCount + increment); // 确保不为负数
-            
-            // 更新学生数量
-            boolean updated = clazzDAO.updateStudentCount(classId, newCount);
+
+            boolean updated = clazzDAO.updateStudentCount(newCount, classId);
             if (!updated) {
                 throw new RuntimeException("更新班级学生数量失败");
             }

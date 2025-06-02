@@ -23,7 +23,7 @@ public interface TeacherDAO {
     int addTeacher(String id, String name, String department);
     
     @SQL(value = "UPDATE teacher SET name = ?, department = ? WHERE id = ?", type = "UPDATE")
-    boolean updateTeacher(String id, String name, String department);
+    boolean updateTeacher(String name, String department,String id);
     
     @SQL(value = "DELETE FROM teacher WHERE id = ?", type = "DELETE")
     boolean deleteTeacher(String id);

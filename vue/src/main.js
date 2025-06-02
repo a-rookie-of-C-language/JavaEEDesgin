@@ -1,6 +1,7 @@
 import './assets/main.css'
 import { createApp } from 'vue'
 import App from './App.vue'
+import router from './router'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
@@ -11,6 +12,9 @@ axios.defaults.baseURL = 'http://localhost:8080'
 axios.defaults.timeout = 10000
 
 const app = createApp(App)
+
+// 注册Vue Router
+app.use(router)
 
 // 注册Element Plus
 app.use(ElementPlus)

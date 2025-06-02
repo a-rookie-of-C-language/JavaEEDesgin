@@ -1,95 +1,26 @@
-<template>
-  <div class="ai-chat">
-    <el-card class="box-card">
-      <template #header>
-        <div class="card-header">
-          <span>AI助手</span>
-          <div class="status-info">
-            <el-tag :type="aiStatus.available ? 'success' : 'danger'">
-              {{ aiStatus.available ? '在线' : '离线' }}
-            </el-tag>
-            <el-button size="small" @click="checkStatus">检查状态</el-button>
-          </div>
-        </div>
-      </template>
-
-      <!-- 聊天区域 -->
-      <div class="chat-container">
-        <div class="chat-messages" ref="messagesContainer">
-          <div
-            v-for="(message, index) in messages"
-            :key="index"
-            :class="['message', message.role === 'user' ? 'user-message' : 'ai-message']"
-          >
-            <div class="message-avatar">
-              <el-avatar :size="32">
-                <el-icon v-if="message.role === 'user'"><User /></el-icon>
-                <el-icon v-else><Robot /></el-icon>
-              </el-avatar>
-            </div>
-            <div class="message-content">
-              <div class="message-text">{{ message.content }}</div>
-              <div class="message-time">{{ formatTime(message.timestamp) }}</div>
-            </div>
-          </div>
-          <div v-if="loading" class="message ai-message">
-            <div class="message-avatar">
-              <el-avatar :size="32">
-                <el-icon><User /></el-icon>
-              </el-avatar>
-            </div>
-            <div class="message-content">
-              <div class="typing-indicator">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 输入区域 -->
-        <div class="chat-input">
-          <el-input
-            v-model="inputMessage"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入您的问题..."
-            @keydown.ctrl.enter="sendMessage"
-          />
-          <div class="input-actions">
-            <el-button @click="clearChat">清空对话</el-button>
-            <el-button type="primary" @click="sendMessage" :loading="loading">
-              发送 (Ctrl+Enter)
-            </el-button>
-          </div>
-        </div>
-      </div>
-    </el-card>
-  </div>
-</template>
-
+<!-- 保留原有模板结构，添加以下功能 -->
 <script setup>
-import { ref, reactive, onMounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
-import { User } from '@element-plus/icons-vue'
+import {ref, reactive, onMounted, nextTick} from 'vue'
 import axios from 'axios'
+import {ElMessage} from 'element-plus'
 
-// Configure axios default encoding
-axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
-axios.defaults.headers.get['Accept'] = 'application/json;charset=UTF-8'
-
-// Reactive data declarations - ADD THESE MISSING VARIABLES
+// 状态管理
 const loading = ref(false)
 const inputMessage = ref('')
 const messages = ref([])
-const messagesContainer = ref()
+const messagesContainer = ref(null)
+// AI状态
 const aiStatus = reactive({
   available: false,
   modelInfo: {}
 })
 
-// Send message function
+// 生命周期钩子
+onMounted(async () => {
+
+})
+
+// 发送消息函数支持流式输出
 const sendMessage = async () => {
   if (!inputMessage.value.trim()) {
     ElMessage.warning('请输入消息内容')
@@ -107,54 +38,87 @@ const sendMessage = async () => {
   inputMessage.value = ''
   loading.value = true
 
+  // 创建AI消息占位符
+  const aiMessageIndex = messages.value.length
+  const aiMessage = {
+    role: 'assistant',
+    content: '',
+    timestamp: new Date(),
+    streaming: true
+  }
+  messages.value.push(aiMessage)
+
   try {
     await nextTick()
     scrollToBottom()
 
-    let response
-    if (messages.value.length > 1) {
-      const chatHistory = messages.value
-        .filter(msg => msg.role)
-        .map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }))
-      
-      response = await axios.post('/ai/chat-history', {
-        messages: chatHistory
-      }, {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
-        }
-      })
-    } else {
-      response = await axios.post('/ai/chat', {
-        message: currentInput
-      }, {
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8'
-        }
-      })
-    }
+    // 使用流式API
+    await streamChatResponse(currentInput, aiMessageIndex)
 
-    if (response.data.code === 200) {
-      const aiMessage = {
-        role: 'assistant',
-        content: response.data.data.response,
-        timestamp: new Date()
-      }
-      messages.value.push(aiMessage)
-    } else {
-      ElMessage.error(response.data.msg || 'AI服务异常')
-    }
   } catch (error) {
     console.error('发送消息失败:', error)
     ElMessage.error('发送消息失败，请检查网络连接')
+    // 移除失败的AI消息
+    messages.value.splice(aiMessageIndex, 1)
   } finally {
     loading.value = false
-    await nextTick()
-    scrollToBottom()
   }
+}
+
+// 流式聊天响应处理
+const streamChatResponse = async (message, messageIndex) => {
+  try {
+    const response = await fetch('http://localhost:8080/ai/chat-stream', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: JSON.stringify({
+        message: message
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error('网络请求失败')
+    }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder('utf-8')
+
+    while (true) {
+      const {done, value} = await reader.read()
+
+      if (done) {
+        // 流结束，标记为非流式状态
+        messages.value[messageIndex].streaming = false
+        break
+      }
+
+      // 解码接收到的数据
+      const chunk = decoder.decode(value, {stream: true})
+      
+      // 检查是否是错误信息
+      if (chunk.includes('[错误:')) {
+        throw new Error(chunk)
+      }
+      
+      // 直接追加token到消息内容
+      messages.value[messageIndex].content += chunk
+      
+      await nextTick()
+      scrollToBottom()
+    }
+
+  } catch (error) {
+    console.error('流式响应处理失败:', error)
+    throw error
+  }
+}
+
+// 清空聊天
+const clearChat = () => {
+  messages.value = []
+  ElMessage.success('对话已清空')
 }
 
 // Check AI status
@@ -176,12 +140,6 @@ const checkStatus = async () => {
   }
 }
 
-// Clear chat
-const clearChat = () => {
-  messages.value = []
-  ElMessage.success('对话已清空')
-}
-
 // Scroll to bottom
 const scrollToBottom = () => {
   if (messagesContainer.value) {
@@ -193,14 +151,81 @@ const scrollToBottom = () => {
 const formatTime = (timestamp) => {
   return new Date(timestamp).toLocaleTimeString()
 }
-
-// Check status on component mount
-onMounted(() => {
-  checkStatus()
-})
 </script>
 
+<template>
+  <div class="ai-chat">
+    <!-- 聊天容器 -->
+    <el-card class="chat-card">
+      <template #header>
+        <div class="card-header">
+          <span>AI对话 (无会话保存)</span>
+          <div>
+            <el-button size="small" type="danger" @click="clearChat">清空对话</el-button>
+          </div>
+        </div>
+      </template>
+
+      <div class="chat-container">
+        <!-- 消息显示区域 -->
+        <div ref="messagesContainer" class="chat-messages">
+          <div v-for="(msg, index) in messages" :key="index" 
+               class="message" 
+               :class="{ 'user-message': msg.role === 'user', 'ai-message': msg.role === 'assistant' }">
+            
+            <!-- 消息正文 -->
+            <div class="message-content">
+              <div class="content-text">{{ msg.content }}</div>
+              <div v-if="msg.streaming" class="typing-cursor">|</div>
+            </div>
+
+            <div class="message-time">{{ formatTime(msg.timestamp) }}</div>
+          </div>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="chat-input">
+          <el-input
+            v-model="inputMessage"
+            type="textarea"
+            :rows="3"
+            placeholder="请输入您的问题..."
+            @keydown.ctrl.enter="sendMessage"
+          />
+          <div class="input-actions">
+            <span class="input-tip">Ctrl + Enter 发送</span>
+            <el-button 
+              type="primary" 
+              @click="sendMessage" 
+              :loading="loading"
+              :disabled="!aiStatus.available"
+            >
+              {{ loading ? '发送中...' : '发送' }}
+            </el-button>
+          </div>
+        </div>
+      </div>
+    </el-card>
+  </div>
+</template>
+
 <style scoped>
+.typing-cursor {
+  display: inline-block;
+  animation: blink 1s infinite;
+  color: #409eff;
+  font-weight: bold;
+}
+
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
 .ai-chat {
   height: 100%;
 }
@@ -261,9 +286,10 @@ onMounted(() => {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.message-text {
+.content-text {
   line-height: 1.5;
   word-wrap: break-word;
+  white-space: pre-wrap;
 }
 
 .message-time {
@@ -274,37 +300,6 @@ onMounted(() => {
 
 .user-message .message-time {
   text-align: right;
-}
-
-.typing-indicator {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.typing-indicator span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: #409eff;
-  animation: typing 1.4s infinite ease-in-out;
-}
-
-.typing-indicator span:nth-child(1) {
-  animation-delay: -0.32s;
-}
-
-.typing-indicator span:nth-child(2) {
-  animation-delay: -0.16s;
-}
-
-@keyframes typing {
-  0%, 80%, 100% {
-    transform: scale(0);
-  }
-  40% {
-    transform: scale(1);
-  }
 }
 
 .chat-input {

@@ -46,12 +46,13 @@
   </div>
 </template>
 
+<!-- 保留原有模板结构，添加以下功能 -->
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
-// 响应式数据
+// 状态管理
 const loading = ref(false)
 const teachers = ref([])
 const dialogVisible = ref(false)
@@ -67,25 +68,81 @@ const teacherForm = reactive({
 
 // 表单验证规则
 const rules = {
+  id: [{ required: true, message: '请输入教师ID', trigger: 'blur' }],
   name: [{ required: true, message: '请输入教师姓名', trigger: 'blur' }],
-  subject: [{ required: true, message: '请输入学科', trigger: 'blur' }],
-  department: [{ required: true, message: '请输入部门', trigger: 'blur' }]
+  department: [{ required: true, message: '请输入所属部门', trigger: 'blur' }]
 }
+
+// 生命周期钩子
+onMounted(() => {
+  getTeachers()
+})
 
 // 获取教师列表
 const getTeachers = async () => {
   loading.value = true
   try {
     const response = await axios.get('/teacher/list')
-    if (response.data.code === 200) {  // 修复：使用response.data.code
-      teachers.value = response.data.data  // 修复：使用response.data.data
+    if (response.data.code === 200) {
+      teachers.value = response.data.data
     } else {
-      ElMessage.error(response.data.message)  // 修复：使用response.data.message
+      ElMessage.error(response.data.msg || '获取教师列表失败')
     }
   } catch (error) {
+    console.error('获取教师列表失败:', error)
     ElMessage.error('获取教师列表失败')
   } finally {
     loading.value = false
+  }
+}
+
+// 提交表单
+const submitForm = async () => {
+  if (!formRef.value) return
+  
+  await formRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        let response
+        if (isEdit.value) {
+          response = await axios.put(`/teacher/update/${teacherForm.id}`, teacherForm)
+        } else {
+          response = await axios.post('/teacher/add', teacherForm)
+        }
+        
+        if (response.data.code === 200) {
+          ElMessage.success(isEdit.value ? '更新成功' : '添加成功')
+          dialogVisible.value = false
+          getTeachers()
+        } else {
+          ElMessage.error(response.data.msg || (isEdit.value ? '更新失败' : '添加失败'))
+        }
+      } catch (error) {
+        console.error(isEdit.value ? '更新教师失败:' : '添加教师失败:', error)
+        ElMessage.error(isEdit.value ? '更新失败' : '添加失败')
+      }
+    }
+  })
+}
+
+// 添加关联班级查询功能
+const teacherClasses = ref([])
+const classDialogVisible = ref(false)
+const currentTeacher = ref(null)
+
+const viewClasses = async (teacher) => {
+  currentTeacher.value = teacher
+  try {
+    const response = await axios.get(`/class/teacher/${teacher.id}`)
+    if (response.data.code === 200) {
+      teacherClasses.value = response.data.data
+      classDialogVisible.value = true
+    } else {
+      ElMessage.error(response.data.msg || '获取班级列表失败')
+    }
+  } catch (error) {
+    console.error('获取班级列表失败:', error)
+    ElMessage.error('获取班级列表失败')
   }
 }
 
@@ -115,34 +172,6 @@ const resetForm = () => {
   }
 }
 
-// 提交表单
-const submitForm = async () => {
-  if (!formRef.value) return
-  
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      try {
-        let response
-        if (isEdit.value) {
-          response = await axios.put(`/teacher/update/${teacherForm.id}`, teacherForm)
-        } else {
-          response = await axios.post('/teacher/add', teacherForm)
-        }
-        
-        if (response.code === 200) {
-          ElMessage.success(response.message)
-          dialogVisible.value = false
-          getTeachers()
-        } else {
-          ElMessage.error(response.message)
-        }
-      } catch (error) {
-        ElMessage.error(isEdit.value ? '更新教师失败' : '添加教师失败')
-      }
-    }
-  })
-}
-
 // 删除教师
 const deleteTeacher = async (id) => {
   try {
@@ -165,11 +194,6 @@ const deleteTeacher = async (id) => {
     }
   }
 }
-
-// 组件挂载时获取数据
-onMounted(() => {
-  getTeachers()
-})
 </script>
 
 <style scoped>

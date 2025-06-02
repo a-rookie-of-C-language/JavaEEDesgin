@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.Optional;
 public interface StudentService {
 
-    Optional<Student> getStudentById(int id);
+    Optional<Student> getStudentById(String id);
 
     void addStudent(Student student);
 
     void updateStudent(Student student);
 
-    void deleteStudent(int id);
+    void deleteStudent(String id);
 
     List<Student> getAllStudents();
 
@@ -30,5 +30,5 @@ public interface StudentService {
     // 添加批量操作方法
     void addStudentsBatch(List<Student> students);
 
-    void deleteStudentsBatch(List<Integer> ids);
+    void deleteStudentsBatch(List<String > ids);
 }

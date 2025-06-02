@@ -72,8 +72,7 @@ public class TransactionManager {
      */
     private static TransactionStatus createNewTransaction(Isolation isolation) throws SQLException {
         Connection connection = DatabaseUtil.getConnection();
-        connection.setAutoCommit(false);
-        
+
         // 设置隔离级别
         setIsolationLevel(connection, isolation);
         
@@ -87,7 +86,6 @@ public class TransactionManager {
      */
     private static TransactionStatus createNonTransactionalStatus() throws SQLException {
         Connection connection = DatabaseUtil.getConnection();
-        connection.setAutoCommit(true);
         
         TransactionStatus status = new TransactionStatus(connection, false);
         transactionStack.get().push(status);

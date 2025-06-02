@@ -6,53 +6,37 @@
         <div class="header-content">
           <h1 class="title">学生管理系统</h1>
           <el-menu
-            :default-active="activeIndex"
+            :default-active="activeRoute"
             class="nav-menu"
             mode="horizontal"
-            @select="handleSelect"
+            router
           >
-            <el-menu-item index="students">学生管理</el-menu-item>
-            <el-menu-item index="teachers">教师管理</el-menu-item>
-            <el-menu-item index="clazzes">班级管理</el-menu-item>
-            <el-menu-item index="ai-chat">AI助手</el-menu-item>
+            <el-menu-item index="/students">学生管理</el-menu-item>
+            <el-menu-item index="/teachers">教师管理</el-menu-item>
+            <el-menu-item index="/classes">班级管理</el-menu-item>
+            <el-menu-item index="/ai-chat">AI助手</el-menu-item>
           </el-menu>
         </div>
       </el-header>
 
       <!-- 主内容区域 -->
       <el-main class="main-content">
-        <component :is="currentComponent" />
+        <router-view />
       </el-main>
     </el-container>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import StudentManagement from './components/StudentManagement.vue'
-import TeacherManagement from './components/TeacherManagement.vue'
-import ClassManagement from './components/ClassManagement.vue'
-import AiChat from './components/AiChat.vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
-const activeIndex = ref('students')
-
-const components = {
-  students: StudentManagement,
-  teachers: TeacherManagement,
-  clazzes: ClassManagement,
-  'ai-chat': AiChat
-}
-
-const currentComponent = computed(() => {
-  return components[activeIndex.value] || StudentManagement
-})
-
-const handleSelect = (key) => {
-  activeIndex.value = key
-}
+const route = useRoute()
+const activeRoute = computed(() => route.path)
 </script>
 
 <style scoped>
+/* 保持原有样式不变 */
 .header {
   background-color: #409eff;
   color: white;

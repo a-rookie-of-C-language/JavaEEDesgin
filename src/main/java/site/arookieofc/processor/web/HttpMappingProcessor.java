@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.web.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +17,11 @@ import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
+// 在文件顶部添加Reactor相关导入
+import reactor.core.publisher.Flux;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+
 @Slf4j
 public class HttpMappingProcessor extends HttpServlet {
     private static final Map<String, MethodInfo> getMappings = new HashMap<>();
@@ -24,6 +31,8 @@ public class HttpMappingProcessor extends HttpServlet {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     static {
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         scanAndRegisterMappings();
     }
 
@@ -48,35 +57,107 @@ public class HttpMappingProcessor extends HttpServlet {
     }
 
     private void handleRequest(HttpServletRequest req, HttpServletResponse resp, Map<String, MethodInfo> mappings) throws IOException {
-        // 修改路径获取逻辑
         String path = req.getRequestURI();
         String contextPath = req.getContextPath();
         if (contextPath != null && !contextPath.isEmpty()) {
             path = path.substring(contextPath.length());
         }
-
-        System.out.println("Processing request: " + req.getMethod() + " " + path);
-
-        // 尝试精确匹配
         MethodInfo methodInfo = mappings.get(path);
-
-        // 如果精确匹配失败，尝试路径变量匹配
         if (methodInfo == null) {
             methodInfo = findMethodWithPathVariables(path, mappings);
         }
 
         if (methodInfo != null) {
             try {
-                // 修改这里：从IOC容器获取控制器实例，而不是直接创建
                 Object controller = site.arookieofc.processor.ioc.ApplicationContextHolder.getBean(methodInfo.controllerClass);
                 resp.setHeader("Access-Control-Allow-Origin", "*");
                 resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
                 resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-                resp.setContentType("application/json;charset=UTF-8");
-                resp.setCharacterEncoding("UTF-8");
+                if (methodInfo.produces.length > 0) {
+                    resp.setContentType(methodInfo.produces[0]);
+                    if (methodInfo.produces[0].equals("text/event-stream")) {
+                        resp.setHeader("Cache-Control", "no-cache");
+                        resp.setHeader("Connection", "keep-alive");
+                        resp.setHeader("Access-Control-Allow-Origin", "*");
+                        resp.setHeader("Access-Control-Allow-Headers", "Cache-Control");
+                    }
+                }
 
-                Object[] args = buildMethodArguments(methodInfo.method, req, path);
+                Object[] args = buildMethodArguments(methodInfo.method, req, resp, path);
                 Object result = methodInfo.method.invoke(controller, args);
+
+                // 修改第88行的条件判断
+                if ((methodInfo.produces.length > 0 && 
+                (methodInfo.produces[0].equals("text/event-stream") || 
+                 methodInfo.produces[0].startsWith("text/plain")))) {
+                // 处理流式响应 - 优化缓冲
+                if (result instanceof Flux) {
+                    @SuppressWarnings("unchecked")
+                    Flux<String> flux = (Flux<String>) result;
+                    
+                    // 强制禁用所有缓冲
+                    resp.setContentType("text/plain;charset=UTF-8");
+                    resp.setCharacterEncoding("UTF-8");
+                    resp.setBufferSize(1);
+                    resp.flushBuffer();
+                    
+                    PrintWriter writer = resp.getWriter();
+                    
+                    try {
+                        java.util.concurrent.CompletableFuture<Void> future = new java.util.concurrent.CompletableFuture<>();
+                        writer.write("");
+                        writer.flush();
+                        flux.subscribe(
+                            data -> {
+                                try {
+                                    writer.write(data);
+                                    writer.flush();
+                                } catch (Exception e) {
+                                    log.error("写入token失败: ", e);
+                                    future.completeExceptionally(e);
+                                }
+                            },
+                            error -> {
+                                log.error("流式处理发生错误: ", error);
+                                try {
+                                    writer.write("\n[错误: " + error.getMessage() + "]");
+                                    writer.flush();
+                                } catch (Exception e) {
+                                    log.error("写入错误信息失败: ", e);
+                                }
+                                future.completeExceptionally(error);
+                            },
+                            () -> {
+                                log.debug("token流结束");
+                                future.complete(null);
+                            }
+                        );
+                        future.get(60, java.util.concurrent.TimeUnit.SECONDS);
+                        
+                    } catch (Exception e) {
+                        log.error("处理流式响应时发生异常: ", e);
+                        try {
+                            writer.write("\n[服务器错误]");
+                            writer.flush();
+                        } catch (Exception ex) {
+                            log.error("写入异常信息失败: ", ex);
+                        }
+                    } finally {
+                        try {
+                            writer.close();
+                        } catch (Exception e) {
+                            log.debug("关闭Writer时发生异常: ", e);
+                        }
+                    }
+                }
+                return;
+            }
+
+                if (methodInfo.produces.length == 0 || methodInfo.produces[0].startsWith("application/json")) {
+                    resp.setContentType("application/json;charset=UTF-8");
+                    resp.setCharacterEncoding("UTF-8");
+                }
+                
                 if (result != null) {
                     String jsonResponse;
                     if (result instanceof String resultStr) {
@@ -95,11 +176,12 @@ public class HttpMappingProcessor extends HttpServlet {
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.getWriter().write("{\"error\":\"Internal server error: " + e.getMessage() + "\"}");
+                resp.setContentType("application/json;charset=UTF-8");
+                resp.getWriter().write("{\"error\":\"Internal server error: " + e.getMessage().replace("\"", "\\\"") + "\"}");
             }
         } else {
-            System.out.println("No mapping found for path: " + path);
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            resp.setContentType("application/json;charset=UTF-8");
             try {
                 Map<String, String> errorResponse = new HashMap<>();
                 errorResponse.put("error", "404 Not Found");
@@ -168,25 +250,24 @@ public class HttpMappingProcessor extends HttpServlet {
             registerMethodMapping(method, controllerClass, basePath, PostMapping.class, postMappings);
             registerMethodMapping(method, controllerClass, basePath, PutMapping.class, putMappings);
             registerMethodMapping(method, controllerClass, basePath, DeleteMapping.class, deleteMappings);
-            
-            // 添加对 RequestMapping 的支持
             registerRequestMapping(method, controllerClass, basePath);
         }
     }
 
-    // 添加新的方法处理 RequestMapping
     private static void registerRequestMapping(Method method, Class<?> controllerClass, String basePath) {
         if (method.isAnnotationPresent(RequestMapping.class)) {
             RequestMapping annotation = method.getAnnotation(RequestMapping.class);
             String path = annotation.value();
             RequestMethod requestMethod = annotation.method();
+            String[] produces = annotation.produces();
+            String[] consumes = annotation.consumes();
             
             String fullPath = basePath.isEmpty() ? path : basePath + path;
             if (!fullPath.startsWith("/")) {
                 fullPath = "/" + fullPath;
             }
             
-            MethodInfo methodInfo = new MethodInfo(method, controllerClass);
+            MethodInfo methodInfo = new MethodInfo(method, controllerClass, produces, consumes);
             
             switch (requestMethod) {
                 case GET:
@@ -205,40 +286,68 @@ public class HttpMappingProcessor extends HttpServlet {
         }
     }
 
+    // MethodInfo类定义
+    @AllArgsConstructor
+    private static class MethodInfo {
+        final Method method;
+        final Class<?> controllerClass;
+        final String[] produces;
+        final String[] consumes;
+    }
+
     private static void registerMethodMapping(Method method, Class<?> controllerClass, String basePath,
-                                              Class<? extends java.lang.annotation.Annotation> annotationClass,
-                                              Map<String, MethodInfo> mappings) {
+                                            Class<? extends java.lang.annotation.Annotation> annotationClass,
+                                            Map<String, MethodInfo> mappings) {
         if (method.isAnnotationPresent(annotationClass)) {
             try {
                 java.lang.annotation.Annotation annotation = method.getAnnotation(annotationClass);
                 Method valueMethod = annotationClass.getMethod("value");
                 String path = (String) valueMethod.invoke(annotation);
 
+                String[] produces = {};
+                String[] consumes = {};
+                try {
+                    Method producesMethod = annotationClass.getMethod("produces");
+                    produces = (String[]) producesMethod.invoke(annotation);
+                    Method consumesMethod = annotationClass.getMethod("consumes");
+                    consumes = (String[]) consumesMethod.invoke(annotation);
+                } catch (NoSuchMethodException e) {
+                    // 如果注解没有produces/consumes方法，使用默认值
+                }
+                
                 String fullPath = basePath.isEmpty() ? path : basePath + path;
                 if (!fullPath.startsWith("/")) {
                     fullPath = "/" + fullPath;
                 }
-
-                mappings.put(fullPath, new MethodInfo(method, controllerClass));
+                
+                mappings.put(fullPath, new MethodInfo(method, controllerClass, produces, consumes));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
         }
     }
 
-    @AllArgsConstructor
-    private static class MethodInfo {
-        final Method method;
-        final Class<?> controllerClass;
-
-    }
-
-    private Object[] buildMethodArguments(Method method, HttpServletRequest req, String requestPath) throws Exception {
+    private Object[] buildMethodArguments(Method method, HttpServletRequest req, HttpServletResponse resp, String requestPath) throws Exception {
         Parameter[] parameters = method.getParameters();
         Object[] args = new Object[parameters.length];
+        
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             Class<?> paramType = parameter.getType();
+
+            
+            // 检查是否是HttpServletResponse参数
+            if (paramType == HttpServletResponse.class) {
+                args[i] = resp;
+                continue;
+            }
+            
+            // 检查是否是HttpServletRequest参数
+            if (paramType == HttpServletRequest.class) {
+                args[i] = req;
+                continue;
+            }
+            
             RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
             if (requestParam != null) {
                 String paramValue = req.getParameter(requestParam.value());
@@ -265,6 +374,7 @@ public class HttpMappingProcessor extends HttpServlet {
                 args[i] = objectMapper.readValue(jsonBody, paramType);
                 continue;
             }
+            
             args[i] = null;
         }
 
