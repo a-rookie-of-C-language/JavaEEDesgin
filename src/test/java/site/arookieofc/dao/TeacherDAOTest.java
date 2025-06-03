@@ -3,9 +3,11 @@ package site.arookieofc.dao;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import site.arookieofc.annotation.ioc.Autowired;
 import site.arookieofc.entity.Teacher;
 import site.arookieofc.processor.config.ConfigProcessor;
-import site.arookieofc.processor.sql.DAOFactory;
+import site.arookieofc.processor.ioc.AnnotationApplicationContext;
+import site.arookieofc.processor.ioc.ApplicationContextHolder;
 import site.arookieofc.utils.DatabaseUtil;
 
 import java.util.List;
@@ -15,19 +17,23 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TeacherDAOTest {
-    
+    @Autowired
     private TeacherDAO teacherDAO;
     private String testTeacherId;
 
     static {
         ConfigProcessor.injectStaticFields(DatabaseUtil.class);
+        AnnotationApplicationContext applicationContext;
+        try {
+            applicationContext = new AnnotationApplicationContext();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        ApplicationContextHolder.setApplicationContext(applicationContext);
     }
     
     @BeforeEach
     public void setUp() {
-        // 获取DAO实例
-        teacherDAO = DAOFactory.getDAO(TeacherDAO.class);
-        // 生成唯一ID用于测试
         testTeacherId = "TEST-" + UUID.randomUUID().toString().substring(0, 8);
     }
     

@@ -11,11 +11,6 @@ public class Result {
     private String msg;
     private Object data;
 
-    // 添加isSuccess方法
-    public boolean isSuccess() {
-        return code == 200;
-    }
-
     public static Result success(String msg, Object data) {
         return new Result(200, msg, data);
     }

@@ -9,7 +9,6 @@ import site.arookieofc.dao.TeacherDAO;
 import site.arookieofc.entity.Clazz;
 import site.arookieofc.entity.Student;
 import site.arookieofc.entity.Teacher;
-import site.arookieofc.processor.sql.DAOFactory;
 import site.arookieofc.service.ClazzService;
 import site.arookieofc.service.StudentService;
 import site.arookieofc.service.TeacherService;
@@ -21,7 +20,8 @@ import java.util.Optional;
 @Component
 public class TeacherServiceImpl implements TeacherService {
 
-    private final TeacherDAO teacherDAO = DAOFactory.getDAO(TeacherDAO.class);
+    @Autowired
+    private TeacherDAO teacherDAO;
 
     @Autowired
     private StudentService studentService;
@@ -31,12 +31,8 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<Teacher> getAllTeachers() {
-        try {
+
             return teacherDAO.getAllTeachers();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
     }
 
     @Override
@@ -44,21 +40,13 @@ public class TeacherServiceImpl implements TeacherService {
         if (id == null || id.trim().isEmpty()) {
             return Optional.empty();
         }
-        try {
+
             return teacherDAO.getTeacherById(id);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
     }
 
     @Override
     public List<String> getAllClassNames() {
-        try {
             return teacherDAO.getAllClassNames();
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            return null;
-        }
     }
 
     @Override
@@ -71,7 +59,7 @@ public class TeacherServiceImpl implements TeacherService {
             throw new IllegalArgumentException("教师姓名不能为空");
         }
 
-        try {
+
             int result = teacherDAO.addTeacher(
                     teacher.getId(),
                     teacher.getName(),
@@ -81,10 +69,6 @@ public class TeacherServiceImpl implements TeacherService {
             if (result <= 0) {
                 throw new RuntimeException("添加教师失败");
             }
-        } catch (Exception e) {
-            e.fillInStackTrace();
-            throw new RuntimeException("数据库错误", e);
-        }
     }
 
     @Override
@@ -100,7 +84,6 @@ public class TeacherServiceImpl implements TeacherService {
             throw new RuntimeException("教师不存在，无法更新");
         }
 
-        try {
             boolean updated = teacherDAO.updateTeacher(
                     teacher.getName(),
                     teacher.getDepartment(),
@@ -110,9 +93,6 @@ public class TeacherServiceImpl implements TeacherService {
             if (!updated) {
                 throw new RuntimeException("更新教师失败，可能教师不存在");
             }
-        } catch (Exception e) {
-            throw new RuntimeException("数据库错误", e);
-        }
     }
 
     @Override
@@ -134,16 +114,11 @@ public class TeacherServiceImpl implements TeacherService {
             throw new RuntimeException("该教师还是班主任，无法删除");
         }
 
-        try {
             boolean deleted = teacherDAO.deleteTeacher(id);
 
             if (!deleted) {
                 throw new RuntimeException("删除教师失败，可能教师不存在");
             }
-        } catch (Exception e) {
-            log.error("数据库错误: {}", e.getMessage());
-            throw new RuntimeException("数据库错误", e);
-        }
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

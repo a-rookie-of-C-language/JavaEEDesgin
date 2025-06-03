@@ -9,7 +9,7 @@ public class StudentDTO {
     private Integer age;
     private String teacherId;
     private String clazz;
-    private String teacherName; // 仅用于数据传输，不对应数据库字段
+    private String teacherName;
     
     /**
      * 转换为实体
@@ -44,8 +44,8 @@ public class StudentDTO {
      * 验证DTO数据
      */
     public boolean isValid() {
-        return name != null && !name.trim().isEmpty() 
-               && age != null && age > 0 && age <= 150;
+        return name != null && !name.trim().isEmpty()
+                && age != null && age > 0 && age <= 150;
     }
     
     /**

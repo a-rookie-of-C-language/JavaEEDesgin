@@ -8,7 +8,6 @@ import java.lang.reflect.Method;
 @Setter
 @Getter
 public class BeanDefinition {
-    // Getters and Setters
     private String beanName;
     private Class<?> beanClass;
     private Object instance;

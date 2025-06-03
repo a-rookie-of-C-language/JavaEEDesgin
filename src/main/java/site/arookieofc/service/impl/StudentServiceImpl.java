@@ -1,28 +1,30 @@
 package site.arookieofc.service.impl;
 
-import site.arookieofc.annotation.ioc.Component;
+import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.ioc.Autowired;
-import site.arookieofc.annotation.transactional.Transactional;
+import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.annotation.transactional.Propagation;
+import site.arookieofc.annotation.transactional.Transactional;
 import site.arookieofc.dao.StudentDAO;
 import site.arookieofc.entity.Clazz;
 import site.arookieofc.entity.Student;
 import site.arookieofc.entity.Teacher;
-import site.arookieofc.processor.sql.DAOFactory;
-import site.arookieofc.service.StudentService;
-import site.arookieofc.service.ClazzService;
 import site.arookieofc.pojo.dto.PageResult;
+import site.arookieofc.service.ClazzService;
+import site.arookieofc.service.StudentService;
 import site.arookieofc.service.TeacherService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Collections;
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class StudentServiceImpl implements StudentService {
 
-    private final StudentDAO studentDAO = DAOFactory.getDAO(StudentDAO.class);
+    @Autowired
+    private StudentDAO studentDAO;
 
     @Autowired
     private ClazzService clazzService;
@@ -45,8 +47,7 @@ public class StudentServiceImpl implements StudentService {
             throw new IllegalArgumentException("学生信息不能为空");
         }
         extracted(student);
-
-        studentDAO.addStudent(UUID.randomUUID().toString(), student.getName(), student.getAge(),
+        studentDAO.addStudent(UUID.randomUUID().toString().substring(0, 8), student.getName(), student.getAge(),
                 student.getTeacherId(), student.getClazz());
 
         clazzService.updateStudentCount(student.getClazz(), 1);
@@ -63,7 +64,6 @@ public class StudentServiceImpl implements StudentService {
             throw new IllegalArgumentException("学生班级不能为空");
         }
 
-        // 验证班级是否存在
         Optional<Clazz> clazz = clazzService.getClassById(student.getClazz());
         if (clazz.isEmpty()) {
             throw new IllegalArgumentException("指定的班级不存在");
@@ -94,14 +94,12 @@ public class StudentServiceImpl implements StudentService {
         String originalClass = originalStudent.getClazz();
         String newClass = student.getClazz();
 
-        // 更新学生信息
         boolean updated = studentDAO.updateStudent(student.getName(), student.getAge(),
                 student.getTeacherId(), student.getClazz(), student.getId());
         if (!updated) {
             throw new RuntimeException("更新学生信息失败");
         }
 
-        // 如果班级发生变化，需要同步更新两个班级的学生数量
         if (!originalClass.equals(newClass)) {
             // 原班级 -1
             clazzService.updateStudentCount(originalClass, -1);
@@ -117,7 +115,6 @@ public class StudentServiceImpl implements StudentService {
             throw new IllegalArgumentException("无效的学生ID");
         }
 
-        // 获取学生信息（用于获取班级）
         Optional<Student> studentOpt = getStudentById(id);
         if (studentOpt.isEmpty()) {
             throw new RuntimeException("学生不存在");
@@ -126,7 +123,6 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentOpt.get();
         String classId = student.getClazz();
 
-        // 删除学生
         boolean deleted = studentDAO.deleteStudent(id);
         if (!deleted) {
             throw new RuntimeException("删除学生失败，可能学生不存在");
@@ -140,13 +136,8 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> getAllStudents() {
-        try {
-            List<Student> students = studentDAO.getAllStudents();
-            return students != null ? students : Collections.emptyList();
-        } catch (Exception e) {
-            System.err.println("Error getting all students: " + e.getMessage());
-            return Collections.emptyList();
-        }
+        List<Student> students = studentDAO.getAllStudents();
+        return students != null ? students : Collections.emptyList();
     }
 
     @Override
@@ -175,32 +166,21 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public long getTotalStudentCount() {
-        try {
-            return studentDAO.getTotalStudentCount();
-        } catch (Exception e) {
-            System.err.println("Error getting student count: " + e.getMessage());
-            return 0;
-        }
+
+        return studentDAO.getTotalStudentCount();
     }
 
     @Override
     public List<Student> getStudentsByClass(String clazz) {
-        try {
-            return studentDAO.getStudentsByClass(clazz);
-        } catch (Exception e) {
-            System.err.println("Error getting students by class: " + e.getMessage());
-            return Collections.emptyList();
-        }
+
+        return studentDAO.getStudentsByClass(clazz);
     }
 
     @Override
     public List<Student> getStudentsByTeacher(String teacherId) {
-        try {
-            return studentDAO.getStudentsByTeacher(teacherId);
-        } catch (Exception e) {
-            System.err.println("Error getting students by teacher: " + e.getMessage());
-            return Collections.emptyList();
-        }
+
+        return studentDAO.getStudentsByTeacher(teacherId);
+
     }
 
     @Override
@@ -216,7 +196,7 @@ public class StudentServiceImpl implements StudentService {
         }
 
         for (Student student : students) {
-            addStudent(student); // 复用已有的添加方法，保持事务一致性
+            addStudent(student);
         }
     }
 
@@ -228,7 +208,7 @@ public class StudentServiceImpl implements StudentService {
         }
 
         for (String id : ids) {
-            deleteStudent(id); // 复用已有的删除方法，保持事务一致性
+            deleteStudent(id);
         }
     }
 }

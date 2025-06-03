@@ -3,13 +3,15 @@ package site.arookieofc.transaction;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import site.arookieofc.annotation.ioc.Autowired;
 import site.arookieofc.entity.Teacher;
 import site.arookieofc.processor.config.ConfigProcessor;
+import site.arookieofc.processor.ioc.AnnotationApplicationContext;
+import site.arookieofc.processor.ioc.ApplicationContextHolder;
 import site.arookieofc.processor.transaction.TransactionInterceptor;
 import site.arookieofc.service.TeacherService;
 import site.arookieofc.service.impl.TeacherServiceImpl;
 import site.arookieofc.dao.TeacherDAO;
-import site.arookieofc.processor.sql.DAOFactory;
 import site.arookieofc.utils.DatabaseUtil;
 
 import java.util.Optional;
@@ -23,18 +25,26 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class TransactionTest {
 
+    @Autowired
     private TeacherService teacherService;
+    @Autowired
     private TeacherDAO teacherDAO;
     private String testTeacherId;
 
     static {
         ConfigProcessor.injectStaticFields(DatabaseUtil.class);
+        AnnotationApplicationContext applicationContext;
+        try {
+            applicationContext = new AnnotationApplicationContext();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        ApplicationContextHolder.setApplicationContext(applicationContext);
     }
 
     @BeforeEach
     public void setUp() {
         teacherService = TransactionInterceptor.createProxy(new TeacherServiceImpl());
-        teacherDAO = DAOFactory.getDAO(TeacherDAO.class);
         testTeacherId = "T-TRANS-" + UUID.randomUUID().toString().substring(0, 8);
     }
 

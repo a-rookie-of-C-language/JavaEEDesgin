@@ -13,12 +13,10 @@ public interface TeacherDAO {
     
     @SQL("SELECT * FROM teacher WHERE id = ?")
     Optional<Teacher> getTeacherById(String id);
-    
-    // 重命名方法以避免混淆
+
     @SQL("SELECT DISTINCT clazz FROM student WHERE clazz IS NOT NULL AND clazz != ''")
     List<String> getAllClassNames();
-    
-    // 添加缺少的方法
+
     @SQL(value = "INSERT INTO teacher (id, name, department) VALUES (?, ?, ?)", type = "INSERT")
     int addTeacher(String id, String name, String department);
     

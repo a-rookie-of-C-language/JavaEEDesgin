@@ -3,9 +3,11 @@ package site.arookieofc.dao;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import site.arookieofc.annotation.ioc.Autowired;
 import site.arookieofc.entity.Student;
 import site.arookieofc.processor.config.ConfigProcessor;
-import site.arookieofc.processor.sql.DAOFactory;
+import site.arookieofc.processor.ioc.AnnotationApplicationContext;
+import site.arookieofc.processor.ioc.ApplicationContextHolder;
 import site.arookieofc.utils.DatabaseUtil;
 
 import java.util.List;
@@ -18,21 +20,28 @@ public class StudentDAOTest {
 
     static {
         ConfigProcessor.injectStaticFields(DatabaseUtil.class);
+        AnnotationApplicationContext applicationContext = null;
+        try {
+            applicationContext = new AnnotationApplicationContext();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        ApplicationContextHolder.setApplicationContext(applicationContext);
     }
-    
+
+    @Autowired
     private StudentDAO studentDAO;
     private String testStudentId;
     
     @BeforeEach
     public void setUp() {
-        // 获取DAO实例
-        studentDAO = DAOFactory.getDAO(StudentDAO.class);
+        testStudentId = UUID.randomUUID().toString().substring(0, 8);
     }
     
     @Test
     public void testAddAndGetStudent() {
         // 添加测试数据
-        int result = studentDAO.addStudent(UUID.randomUUID().toString(),"测试学生", 20, "T001", "测试班级");
+        int result = studentDAO.addStudent(testStudentId,"测试学生", 20, "T001", "测试班级");
         assertTrue(result > 0, "添加学生应该成功");
         
         // 获取刚刚插入的学生ID
@@ -64,7 +73,7 @@ public class StudentDAOTest {
     @Test
     public void testUpdateStudent() {
         // 添加测试数据
-        int result = studentDAO.addStudent(UUID.randomUUID().toString(),"更新测试", 18, "T002", "测试班级2");
+        int result = studentDAO.addStudent(testStudentId,"更新测试", 18, "T002", "测试班级2");
         assertTrue(result > 0, "添加学生应该成功");
         
         // 获取刚刚插入的学生ID
@@ -96,9 +105,9 @@ public class StudentDAOTest {
     @Test
     public void testGetStudentsByClass() {
         // 添加测试数据
-        int result1 = studentDAO.addStudent(UUID.randomUUID().toString(),"班级测试1", 18, "T001", "测试班级A");
-        int result2 = studentDAO.addStudent(UUID.randomUUID().toString(),"班级测试2", 19, "T002", "测试班级A");
-        int result3 = studentDAO.addStudent(UUID.randomUUID().toString(),"班级测试3", 20, "T003", "测试班级B");
+        int result1 = studentDAO.addStudent(testStudentId,"班级测试1", 18, "T001", "测试班级A");
+        int result2 = studentDAO.addStudent(UUID.randomUUID().toString().substring(0,8),"班级测试2", 19, "T002", "测试班级A");
+        int result3 = studentDAO.addStudent(UUID.randomUUID().toString().substring(0,8),"班级测试3", 20, "T003", "测试班级B");
         
         assertTrue(result1 > 0 && result2 > 0 && result3 > 0, "添加学生应该成功");
         

@@ -1,5 +1,6 @@
 package site.arookieofc.processor.sql;
 
+import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.sql.SQL;
 import site.arookieofc.processor.transaction.TransactionManager;
 import site.arookieofc.processor.transaction.TransactionStatus;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class SQLExecutor {
     
     @SuppressWarnings("unchecked")
@@ -24,10 +26,14 @@ public class SQLExecutor {
         String sql = sqlAnnotation.value();
         String type = sqlAnnotation.type().toUpperCase();
         
+        log.debug("执行SQL: {}, 类型: {}, 方法: {}.{}", 
+                sql, type, method.getDeclaringClass().getSimpleName(), method.getName());
+        
         // 首先尝试获取当前事务的连接
-        Connection conn = null;
+        Connection conn;
         boolean closeConnection = true;
         boolean isTransactional = false;
+        long startTime = System.currentTimeMillis();
         
         try {
             TransactionStatus currentStatus = TransactionManager.getCurrentTransaction();
@@ -35,8 +41,10 @@ public class SQLExecutor {
                 conn = currentStatus.getConnection();
                 closeConnection = false; // 不关闭事务连接
                 isTransactional = true;  // 标记为事务环境
+                log.debug("使用事务连接执行SQL");
             } else {
                 conn = DatabaseUtil.getConnection();
+                log.debug("使用新连接执行SQL");
             }
             
             try {
@@ -52,17 +60,22 @@ public class SQLExecutor {
                     conn.commit();
                 }
                 
+                long executionTime = System.currentTimeMillis() - startTime;
+                log.debug("SQL执行完成: {}, 耗时: {}ms", sql, executionTime);
+                
                 return (T) result;
             } finally {
                 if (closeConnection && conn != null) {
                     try {
                         conn.close();
+                        log.debug("关闭数据库连接");
                     } catch (SQLException e) {
-                        // 忽略关闭连接时的异常
+                        log.error("关闭数据库连接失败", e);
                     }
                 }
             }
         } catch (SQLException e) {
+            log.error("SQL执行失败: {}, 错误: {}", sql, e.getMessage(), e);
             throw new RuntimeException("SQL execution failed", e);
         }
     }
@@ -71,32 +84,87 @@ public class SQLExecutor {
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             setParameters(stmt, args);
             
+            log.debug("执行查询: {}, 参数数量: {}", sql, args != null ? args.length : 0);
+            
             try (ResultSet rs = stmt.executeQuery()) {
                 if (returnType == Optional.class) {
                     Class<?> entityType = getGenericType(method);
                     if (entityType.equals(List.class)) {
                         Class<?> listEntityType = getListGenericType(method);
                         List<Object> results = mapResultSetToList(rs, listEntityType);
+                        log.debug("查询结果: Optional<List>, 结果数量: {}", results.size());
                         return Optional.ofNullable(results.isEmpty() ? null : results);
                     } else {
                         if (rs.next()) {
                             Object entity = mapResultSetToEntity(rs, entityType);
+                            log.debug("查询结果: Optional<{}>, 找到记录", entityType.getSimpleName());
                             return Optional.of(entity);
                         } else {
+                            log.debug("查询结果: Optional<{}>, 未找到记录", entityType.getSimpleName());
                             return Optional.empty();
                         }
                     }
                 } else if (returnType == List.class) {
                     Class<?> entityType = getListGenericType(method);
-                    return mapResultSetToList(rs, entityType);
+                    List<Object> results = mapResultSetToList(rs, entityType);
+                    log.debug("查询结果: List<{}>, 结果数量: {}", entityType.getSimpleName(), results.size());
+                    return results;
+                } else if (isPrimitiveOrWrapper(returnType)) {
+                    // 处理基本类型和包装类型
+                    if (rs.next()) {
+                        Object value = rs.getObject(1);
+                        log.debug("查询结果: {}, 值: {}", returnType.getSimpleName(), value);
+                        return convertToPrimitiveType(value, returnType);
+                    }
+                    log.debug("查询结果: {}, 未找到记录，返回默认值", returnType.getSimpleName());
+                    return getDefaultValue(returnType);
                 } else {
                     if (rs.next()) {
-                        return mapResultSetToEntity(rs, returnType);
+                        Object entity = mapResultSetToEntity(rs, returnType);
+                        log.debug("查询结果: {}, 找到记录", returnType.getSimpleName());
+                        return entity;
+                    } else {
+                        log.debug("查询结果: {}, 未找到记录，返回null", returnType.getSimpleName());
+                        return null;
                     }
-                    return null;
                 }
             }
         }
+    }
+    
+    // 添加类型转换方法
+    private static Object convertToPrimitiveType(Object value, Class<?> targetType) {
+        if (value == null) {
+            return getDefaultValue(targetType);
+        }
+        
+        if (targetType == long.class || targetType == Long.class) {
+            return ((Number) value).longValue();
+        } else if (targetType == int.class || targetType == Integer.class) {
+            return ((Number) value).intValue();
+        } else if (targetType == double.class || targetType == Double.class) {
+            return ((Number) value).doubleValue();
+        } else if (targetType == float.class || targetType == Float.class) {
+            return ((Number) value).floatValue();
+        } else if (targetType == boolean.class || targetType == Boolean.class) {
+            return Boolean.valueOf(value.toString());
+        } else if (targetType == String.class) {
+            return value.toString();
+        }
+        
+        return value;
+    }
+
+    private static Object getDefaultValue(Class<?> type) {
+        if (type == long.class) return 0L;
+        if (type == int.class) return 0;
+        if (type == double.class) return 0.0;
+        if (type == float.class) return 0.0f;
+        if (type == boolean.class) return false;
+        if (type == char.class) return '\0';
+        if (type == byte.class) return (byte) 0;
+        if (type == short.class) return (short) 0;
+        return null; // 包装类型返回null
     }
     
     private static Object executeUpdate(Connection conn, String sql, Object[] args, Class<?> returnType) throws SQLException {
@@ -139,15 +207,13 @@ public class SQLExecutor {
             Object entity = entityType.getDeclaredConstructor().newInstance();
             Field[] fields = entityType.getDeclaredFields();
             
-            System.out.println("Mapping entity: " + entityType.getSimpleName());
-            
             for (Field field : fields) {
                 String columnName = field.getName();
                 String setterName = "set" + Character.toUpperCase(columnName.charAt(0)) + columnName.substring(1);
                 
                 try {
                     Method setter = entityType.getMethod(setterName, field.getType());
-                    Object value = null;
+                    Object value;
                     
                     // 优先尝试下划线格式
                     try {
@@ -209,7 +275,6 @@ public class SQLExecutor {
                 }
             }
         } else {
-            // 对于复杂对象，使用原有的映射逻辑
             while (rs.next()) {
                 results.add(mapResultSetToEntity(rs, entityType));
             }

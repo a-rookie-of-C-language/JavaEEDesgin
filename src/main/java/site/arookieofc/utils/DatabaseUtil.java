@@ -74,23 +74,4 @@ public class DatabaseUtil {
         config.setLeakDetectionThreshold(60000); // 连接泄漏检测阈值(1分钟)
         return config;
     }
-
-    public static String getPoolStatus() {
-        if (!initialized || dataSource == null) {
-            return "连接池未初始化";
-        }
-
-        return String.format("连接池状态 - 活跃连接: %d, 空闲连接: %d, 总连接数: %d, 等待连接的线程数: %d",
-                dataSource.getHikariPoolMXBean().getActiveConnections(),
-                dataSource.getHikariPoolMXBean().getIdleConnections(),
-                dataSource.getHikariPoolMXBean().getTotalConnections(),
-                dataSource.getHikariPoolMXBean().getThreadsAwaitingConnection());
-    }
-
-    public static void closeDataSource() {
-        if (dataSource != null && !dataSource.isClosed()) {
-            dataSource.close();
-            System.out.println("数据库连接池已关闭");
-        }
-    }
 }

@@ -28,4 +28,8 @@ public class TransactionStatus {
     public void setCompleted() {
         this.completed = true;
     }
+
+    public boolean isTransactional(){
+        return this.newTransaction;
+    }
 }

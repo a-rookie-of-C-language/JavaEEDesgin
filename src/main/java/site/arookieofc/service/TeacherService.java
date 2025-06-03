@@ -1,6 +1,5 @@
 package site.arookieofc.service;
 
-import site.arookieofc.annotation.transactional.Transactional;
 import site.arookieofc.entity.Teacher;
 
 import java.util.List;
@@ -20,6 +19,5 @@ public interface TeacherService {
 
     void deleteTeacher(String id);
 
-    @Transactional
     void addTeacherThrowable(Teacher teacher);
 }

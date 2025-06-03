@@ -19,41 +19,37 @@ import java.util.stream.Collectors;
 @Controller("/student")
 @Component
 public class StudentController {
-    
+
     @Autowired
     private StudentService studentService;
-    
+
     @Autowired
     private TeacherService teacherService;
-    
+
     @GetMapping("/page")
     public Result getStudentList(@RequestParam("page") int page,
-                               @RequestParam(value = "size", defaultValue = "10") int size) {
-        try {
-            PageResult<Student> pageResult = studentService.getStudentsByPage(page, size);
-            List<StudentDTO> studentDTOs = pageResult.getData().stream()
-                    .map(student -> {
-                        StudentDTO dto = student.toDTO();
-                        if (student.getTeacherId() != null) {
-                            Optional<Teacher> teacher = teacherService.getTeacherById(student.getTeacherId());
-                            teacher.ifPresent(t -> dto.setTeacherName(t.getName()));
-                        }
-                        return dto;
-                    })
-                    .collect(Collectors.toList());
-            PageResult<StudentDTO> dtoPageResult = new PageResult<>(
-                studentDTOs, 
-                pageResult.getTotal(), 
-                pageResult.getPage(), 
+                                 @RequestParam(value = "size", defaultValue = "10") int size) {
+        PageResult<Student> pageResult = studentService.getStudentsByPage(page, size);
+        List<StudentDTO> studentDTOs = pageResult.getData().stream()
+                .map(student -> {
+                    StudentDTO dto = student.toDTO();
+                    if (student.getTeacherId() != null) {
+                        Optional<Teacher> teacher = teacherService.getTeacherById(student.getTeacherId());
+                        teacher.ifPresent(t -> dto.setTeacherName(t.getName()));
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+        PageResult<StudentDTO> dtoPageResult = new PageResult<>(
+                studentDTOs,
+                pageResult.getTotal(),
+                pageResult.getPage(),
                 pageResult.getSize()
-            );
-            
-            return Result.success("获取学生列表成功", dtoPageResult);
-        } catch (Exception e) {
-            return Result.error("获取学生列表失败: " + e.getMessage());
-        }
+        );
+
+        return Result.success("获取学生列表成功", dtoPageResult);
     }
-    
+
     @GetMapping("/info/{id}")
     public Result getStudentInfo(@PathVariable("id") String id) {
         try {
@@ -68,15 +64,15 @@ public class StudentController {
             return Result.error("获取学生信息失败: " + e.getMessage());
         }
     }
-    
+
     @PostMapping("/add")
     public Result addStudent(@RequestBody StudentDTO studentDTO) {
         try {
             // 验证数据
-            if (!studentDTO.isValid()) {
+            if (studentDTO.isValid()) {
                 return Result.error(studentDTO.getValidationError());
             }
-            
+
             Student student = studentDTO.toEntity();
             studentService.addStudent(student);
             return Result.success("学生 " + student.getName() + " 添加成功");
@@ -84,15 +80,15 @@ public class StudentController {
             return Result.error("添加学生失败: " + e.getMessage());
         }
     }
-    
+
     @PutMapping("/update/{id}")
     public Result updateStudent(@PathVariable("id") String id, @RequestBody StudentDTO studentDTO) {
         try {
             // 验证数据
-            if (!studentDTO.isValid()) {
+            if (studentDTO.isValid()) {
                 return Result.error(studentDTO.getValidationError());
             }
-            
+
             Student student = studentDTO.toEntity();
             student.setId(id);
             studentService.updateStudent(student);
@@ -101,7 +97,7 @@ public class StudentController {
             return Result.error("更新学生失败: " + e.getMessage());
         }
     }
-    
+
     @DeleteMapping("/delete/{id}")
     public Result deleteStudent(@PathVariable("id") String id) {
         try {
@@ -111,7 +107,7 @@ public class StudentController {
             return Result.error("删除学生失败: " + e.getMessage());
         }
     }
-    
+
     @GetMapping("/class/{clazz}")
     public Result getStudentsByClass(@PathVariable("clazz") String clazz) {
         try {
@@ -124,7 +120,7 @@ public class StudentController {
             return Result.error("获取班级学生失败: " + e.getMessage());
         }
     }
-    
+
     @GetMapping("/teacher/{teacherId}")
     public Result getStudentsByTeacher(@PathVariable("teacherId") String teacherId) {
         try {
@@ -156,7 +152,7 @@ public class StudentController {
             return Result.error();
         }
     }
-    
+
     @GetMapping("/teachers")
     public Result getAllTeachers() {
         try {
@@ -166,7 +162,7 @@ public class StudentController {
             return Result.error("获取教师列表失败: " + e.getMessage());
         }
     }
-    
+
     @GetMapping("/classes")
     public Result getAllClasses() {
         try {

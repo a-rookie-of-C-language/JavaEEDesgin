@@ -1,12 +1,15 @@
 package site.arookieofc.processor.transaction;
 
+import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.transactional.Transactional;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.sql.SQLException;
 import java.util.Arrays;
 
+@Slf4j
 public class TransactionInterceptor implements InvocationHandler {
     
     private final Object target;
@@ -26,6 +29,7 @@ public class TransactionInterceptor implements InvocationHandler {
         }
         
         // 有事务注解，在事务中执行
+        log.debug("开始执行事务方法: {}.{}", target.getClass().getSimpleName(), method.getName());
         return executeInTransaction(transactional, method, args);
     }
     
@@ -48,22 +52,60 @@ public class TransactionInterceptor implements InvocationHandler {
      */
     private Object executeInTransaction(Transactional transactional, Method method, Object[] args) throws Throwable {
         TransactionStatus status = null;
+        long startTime = System.currentTimeMillis();
+        
         try {
             // 开始事务
             status = TransactionManager.begin(transactional.propagation(), transactional.isolation());
+            log.debug("事务已开始: {}.{}, 传播行为: {}, 隔离级别: {}", 
+                    target.getClass().getSimpleName(), 
+                    method.getName(), 
+                    transactional.propagation(), 
+                    transactional.isolation());
             
             // 执行目标方法
             Object result = method.invoke(target, args);
             
             // 提交事务
             TransactionManager.commit(status);
+            long executionTime = System.currentTimeMillis() - startTime;
+            log.debug("事务已提交: {}.{}, 耗时: {}ms", 
+                    target.getClass().getSimpleName(), 
+                    method.getName(), 
+                    executionTime);
             return result;
             
         } catch (Throwable ex) {
-            // 改进：始终回滚RuntimeException，不再检查shouldRollback
+            // 检查是否应该回滚事务
             if (status != null) {
-                System.out.println("执行事务回滚: " + ex.getClass().getName());
-                TransactionManager.rollback(status);
+                // 获取实际异常
+                Throwable actualException = ex;
+                if (ex instanceof java.lang.reflect.InvocationTargetException) {
+                    Throwable targetEx = ((java.lang.reflect.InvocationTargetException) ex).getTargetException();
+                    if (targetEx != null) {
+                        actualException = targetEx;
+                    }
+                }
+                
+                // 检查是否应该回滚
+                if (shouldRollback(transactional, actualException)) {
+                    log.error("执行事务回滚: {}.{}, 异常类型: {}, 异常信息: {}", 
+                            target.getClass().getSimpleName(), 
+                            method.getName(), 
+                            actualException.getClass().getName(), 
+                            actualException.getMessage());
+                    TransactionManager.rollback(status);
+                } else {
+                    log.debug("不回滚事务: {}.{}, 异常类型: {} 不在rollbackFor列表中", 
+                            target.getClass().getSimpleName(), 
+                            method.getName(), 
+                            actualException.getClass().getName());
+                    try {
+                        TransactionManager.commit(status);
+                    } catch (SQLException e) {
+                        log.error("提交事务失败", e);
+                    }
+                }
             }
             
             // 改进的异常处理逻辑
@@ -74,7 +116,19 @@ public class TransactionInterceptor implements InvocationHandler {
                 Throwable targetEx = ((java.lang.reflect.InvocationTargetException) ex).getTargetException();
                 if (targetEx != null) {
                     actualException = targetEx;
+                    log.error("事务方法执行异常: {}.{}, 目标异常: {}, 异常信息: {}", 
+                            target.getClass().getSimpleName(), 
+                            method.getName(), 
+                            targetEx.getClass().getName(), 
+                            targetEx.getMessage(), 
+                            targetEx);
                 }
+            } else {
+                log.error("事务方法执行异常: {}.{}, 异常信息: {}", 
+                        target.getClass().getSimpleName(), 
+                        method.getName(), 
+                        ex.getMessage(), 
+                        ex);
             }
             
             throw actualException;
@@ -104,6 +158,10 @@ public class TransactionInterceptor implements InvocationHandler {
         // 获取目标类实现的所有接口，包括父类实现的接口
         Class<?>[] interfaces = getAllInterfaces(target.getClass());
         
+        log.debug("为目标对象创建事务代理: {}, 实现接口数量: {}", 
+                target.getClass().getName(), 
+                interfaces.length);
+        
         return (T) Proxy.newProxyInstance(
             target.getClass().getClassLoader(),
             interfaces,
@@ -118,18 +176,11 @@ public class TransactionInterceptor implements InvocationHandler {
         if (clazz == null) {
             return new Class[0];
         }
-        
-        // 使用Set避免重复接口
-
-        // 添加当前类实现的接口
         java.util.Set<Class<?>> interfacesSet = new java.util.LinkedHashSet<>(Arrays.asList(clazz.getInterfaces()));
-        
-        // 递归添加父类实现的接口
         Class<?> superclass = clazz.getSuperclass();
         if (superclass != null && superclass != Object.class) {
             interfacesSet.addAll(Arrays.asList(getAllInterfaces(superclass)));
         }
-        
         return interfacesSet.toArray(new Class<?>[0]);
     }
 }
