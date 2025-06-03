@@ -11,6 +11,9 @@ import axios from 'axios'
 axios.defaults.baseURL = 'http://localhost:8080'
 axios.defaults.timeout = 10000
 
+axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
+axios.defaults.headers.put['Content-Type'] = 'application/json;charset=UTF-8'
+
 const app = createApp(App)
 
 // 注册Vue Router
@@ -26,5 +29,6 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 
 // 全局配置axios
 app.config.globalProperties.$http = axios
+
 
 app.mount('#app')

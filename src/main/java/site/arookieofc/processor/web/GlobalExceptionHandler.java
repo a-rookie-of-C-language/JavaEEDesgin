@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.Main;
-import site.arookieofc.annotation.web.ControllerAdvice;
+import site.arookieofc.annotation.web.ControllerException;
 import site.arookieofc.annotation.web.ExceptionHandler;
 import site.arookieofc.pojo.dto.ErrorResponse;
 import site.arookieofc.processor.ioc.ApplicationContextHolder;
@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
     }
     
     private static void processExceptionHandlerClass(Class<?> clazz) {
-        if (clazz.isAnnotationPresent(ControllerAdvice.class)) {
+        if (clazz.isAnnotationPresent(ControllerException.class)) {
             log.debug("发现@ControllerAdvice类: {}", clazz.getName());
             Method[] methods = clazz.getDeclaredMethods();
             for (Method method : methods) {

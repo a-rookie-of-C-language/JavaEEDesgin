@@ -12,7 +12,6 @@
       <el-table :data="teachers" style="width: 100%" v-loading="loading">
         <el-table-column prop="id" label="ID" width="120" />
         <el-table-column prop="name" label="姓名" width="120" />
-        <el-table-column prop="department" label="部门" width="120" />
         <el-table-column label="操作" width="180">
           <template #default="scope">
             <el-button size="small" @click="showEditDialog(scope.row)">编辑</el-button>
@@ -31,9 +30,6 @@
       <el-form :model="teacherForm" :rules="rules" ref="formRef" label-width="80px">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="teacherForm.name" />
-        </el-form-item>
-        <el-form-item label="部门" prop="department">
-          <el-input v-model="teacherForm.department" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -63,14 +59,12 @@ const formRef = ref()
 const teacherForm = reactive({
   id: '',
   name: '',
-  department: ''
 })
 
 // 表单验证规则
 const rules = {
   id: [{ required: true, message: '请输入教师ID', trigger: 'blur' }],
   name: [{ required: true, message: '请输入教师姓名', trigger: 'blur' }],
-  department: [{ required: true, message: '请输入所属部门', trigger: 'blur' }]
 }
 
 // 生命周期钩子

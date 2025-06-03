@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.config.Config;
 import site.arookieofc.annotation.web.Controller;
 import site.arookieofc.processor.config.ConfigProcessor;
+import site.arookieofc.server.EmbeddedTomcatServer;
+
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,15 +13,12 @@ import java.util.List;
 
 @Slf4j
 public class ComponentScanner {
-    
+    static {
+        ConfigProcessor.injectStaticFields(ComponentScanner.class);
+    }
     @Config("web.controller")
     private static String controllerPackage;
-    
-    static {
-        controllerPackage = ConfigProcessor.getStringValue("web.controller", "site.arookieofc.controller");
-        log.info("控制器包路径配置为: {}", controllerPackage);
-    }
-    
+
     public static void scanAndRegisterControllers() {
         log.info("开始扫描并注册控制器...");
         try {

@@ -43,13 +43,13 @@ public class ClazzDAOTest {
         testTeacherId = "T-TEST-" + UUID.randomUUID().toString().substring(0, 8);
         
         // 添加测试教师
-        teacherDAO.addTeacher(testTeacherId, "测试班主任", "测试部门");
+        teacherDAO.addTeacher(testTeacherId, "测试班主任");
     }
     
     @Test
     public void testAddAndGetClass() {
         // 添加测试数据
-        int result = clazzDAO.addClass(testClassId, "测试班级", testTeacherId, "测试班级描述");
+        int result = clazzDAO.addClass(testClassId, "测试班级", testTeacherId);
         assertTrue(result > 0, "添加班级应该成功");
         
         // 通过ID获取班级
@@ -57,7 +57,7 @@ public class ClazzDAOTest {
         assertTrue(clazz.isPresent(), "应该能通过ID找到班级");
         assertEquals("测试班级", clazz.get().getName(), "班级名称应该匹配");
         assertEquals(testTeacherId, clazz.get().getTeacherId(), "班主任ID应该匹配");
-        assertEquals("测试班级描述", clazz.get().getDescription(), "班级描述应该匹配");
+        assertEquals("测试班级描述",  "班级描述应该匹配");
         
         // 测试完成后删除测试数据
         boolean deleted = clazzDAO.deleteClass(testClassId);
@@ -71,18 +71,18 @@ public class ClazzDAOTest {
     @Test
     public void testUpdateClass() {
         // 添加测试数据
-        int result = clazzDAO.addClass(testClassId, "更新测试", testTeacherId, "测试描述");
+        int result = clazzDAO.addClass(testClassId, "更新测试", testTeacherId);
         assertTrue(result > 0, "添加班级应该成功");
         
         // 更新班级信息
-        boolean updated = clazzDAO.updateClass("更新后的名字", testTeacherId, "更新后的描述", testClassId);
+        boolean updated = clazzDAO.updateClass("更新后的名字", testTeacherId, testClassId);
         assertTrue(updated, "更新班级应该成功");
         
         // 验证更新成功
         Optional<Clazz> updatedClass = clazzDAO.getClassById(testClassId);
         assertTrue(updatedClass.isPresent(), "应该能找到更新后的班级");
         assertEquals("更新后的名字", updatedClass.get().getName(), "班级名称应该已更新");
-        assertEquals("更新后的描述", updatedClass.get().getDescription(), "班级描述应该已更新");
+        assertEquals("更新后的描述", "班级描述应该已更新");
         
         // 测试完成后删除测试数据
         boolean deleted = clazzDAO.deleteClass(testClassId);
@@ -92,7 +92,7 @@ public class ClazzDAOTest {
     @Test
     public void testUpdateStudentCount() {
         // 添加测试数据
-        int result = clazzDAO.addClass(testClassId, "学生数量测试", testTeacherId, "测试描述");
+        int result = clazzDAO.addClass(testClassId, "学生数量测试", testTeacherId);
         assertTrue(result > 0, "添加班级应该成功");
         
         // 更新学生数量
@@ -115,8 +115,8 @@ public class ClazzDAOTest {
         String testClassId1 = testClassId + "-1";
         String testClassId2 = testClassId + "-2";
         
-        clazzDAO.addClass(testClassId1, "测试班级1", testTeacherId, "测试描述1");
-        clazzDAO.addClass(testClassId2, "测试班级2", testTeacherId, "测试描述2");
+        clazzDAO.addClass(testClassId1, "测试班级1", testTeacherId);
+        clazzDAO.addClass(testClassId2, "测试班级2", testTeacherId);
         
         // 测试按教师ID查询
         List<Clazz> teacherClasses = clazzDAO.getClassesByTeacher(testTeacherId);

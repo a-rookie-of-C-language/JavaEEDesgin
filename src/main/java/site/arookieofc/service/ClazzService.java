@@ -11,15 +11,17 @@ public interface ClazzService {
 
     Optional<Clazz> getClassById(String id);
 
-    void addClass(Clazz clazz);
+    Integer addClass(Clazz clazz);
 
-    void updateClass(Clazz clazz);
+    Boolean updateClass(Clazz clazz);
 
-    void deleteClass(String id);
+    Boolean deleteClass(String id);
 
     List<Clazz> getClassesByTeacher(String teacherId);
 
     void updateStudentCount(String classId, int increment);
 
     int getStudentCount(String classId);
+
+    Optional<String > getClassIdByName(String clazz);
 }

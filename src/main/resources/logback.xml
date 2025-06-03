@@ -27,7 +27,7 @@
         </encoder>
     </appender>
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>error.log</file>
+        <file>log/error.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>

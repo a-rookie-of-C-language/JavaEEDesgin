@@ -3,13 +3,11 @@ package site.arookieofc.service.impl;
 import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.annotation.ioc.Autowired;
-import site.arookieofc.annotation.transactional.Propagation;
 import site.arookieofc.annotation.transactional.Transactional;
+import site.arookieofc.annotation.validation.NotNullAndEmpty;
 import site.arookieofc.dao.TeacherDAO;
-import site.arookieofc.entity.Clazz;
 import site.arookieofc.entity.Student;
 import site.arookieofc.entity.Teacher;
-import site.arookieofc.service.ClazzService;
 import site.arookieofc.service.StudentService;
 import site.arookieofc.service.TeacherService;
 
@@ -26,138 +24,56 @@ public class TeacherServiceImpl implements TeacherService {
     @Autowired
     private StudentService studentService;
 
-    @Autowired
-    private ClazzService clazzService;
-
     @Override
     public List<Teacher> getAllTeachers() {
-
-            return teacherDAO.getAllTeachers();
+        return teacherDAO.getAllTeachers();
     }
 
     @Override
-    public Optional<Teacher> getTeacherById(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            return Optional.empty();
-        }
-
-            return teacherDAO.getTeacherById(id);
+    public Optional<Teacher> getTeacherById(@NotNullAndEmpty String id) {
+        return teacherDAO.getTeacherById(id);
     }
 
     @Override
     public List<String> getAllClassNames() {
-            return teacherDAO.getAllClassNames();
+        return teacherDAO.getAllClassNames();
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void addTeacher(Teacher teacher) {
-        if (teacher == null) {
-            throw new IllegalArgumentException("教师信息不能为空");
-        }
-        if (teacher.getName() == null || teacher.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("教师姓名不能为空");
-        }
-
-
-            int result = teacherDAO.addTeacher(
-                    teacher.getId(),
-                    teacher.getName(),
-                    teacher.getDepartment()
-            );
-
-            if (result <= 0) {
-                throw new RuntimeException("添加教师失败");
-            }
+    @Transactional
+    public void addTeacher(@NotNullAndEmpty Teacher teacher) {
+        teacherDAO.addTeacher(
+                teacher.getId(),
+                teacher.getName()
+        );
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateTeacher(Teacher teacher) {
-        if (teacher == null || teacher.getId() == null) {
-            throw new IllegalArgumentException("无效的教师信息");
-        }
-
-        // 验证教师是否存在
-        Optional<Teacher> existingTeacher = getTeacherById(teacher.getId());
-        if (existingTeacher.isEmpty()) {
-            throw new RuntimeException("教师不存在，无法更新");
-        }
-
-            boolean updated = teacherDAO.updateTeacher(
-                    teacher.getName(),
-                    teacher.getDepartment(),
-                    teacher.getId()
-            );
-
-            if (!updated) {
-                throw new RuntimeException("更新教师失败，可能教师不存在");
-            }
+    @Transactional
+    public void updateTeacher(@NotNullAndEmpty Teacher teacher) {
+        teacherDAO.updateTeacher(
+                teacher.getName(),
+                teacher.getId()
+        );
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteTeacher(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("无效的教师ID");
-        }
-
-        // 检查是否有学生关联到这个教师
+    @Transactional
+    public void deleteTeacher(@NotNullAndEmpty String id) {
         List<Student> students = studentService.getStudentsByTeacher(id);
         if (!students.isEmpty()) {
             throw new RuntimeException("该教师下还有学生，无法删除");
         }
+        teacherDAO.deleteTeacher(id);
 
-        // 检查是否有班级关联到这个教师
-        List<Clazz> classes = clazzService.getClassesByTeacher(id);
-        if (!classes.isEmpty()) {
-            throw new RuntimeException("该教师还是班主任，无法删除");
-        }
-
-            boolean deleted = teacherDAO.deleteTeacher(id);
-
-            if (!deleted) {
-                throw new RuntimeException("删除教师失败，可能教师不存在");
-            }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void reassignTeacherClasses(String oldTeacherId, String newTeacherId) {
-        if (oldTeacherId == null || oldTeacherId.trim().isEmpty()) {
-            throw new IllegalArgumentException("原教师ID不能为空");
-        }
-        if (newTeacherId == null || newTeacherId.trim().isEmpty()) {
-            throw new IllegalArgumentException("新教师ID不能为空");
-        }
-
-        // 验证两个教师是否存在
-        Optional<Teacher> oldTeacher = getTeacherById(oldTeacherId);
-        if (oldTeacher.isEmpty()) {
-            throw new IllegalArgumentException("原教师不存在");
-        }
-
-        Optional<Teacher> newTeacher = getTeacherById(newTeacherId);
-        if (newTeacher.isEmpty()) {
-            throw new IllegalArgumentException("新教师不存在");
-        }
-
-        // 获取原教师的所有班级
-        List<Clazz> classes = clazzService.getClassesByTeacher(oldTeacherId);
-
-        // 更新每个班级的教师ID
-        for (Clazz clazz : classes) {
-            clazz.setTeacherId(newTeacherId);
-            clazzService.updateClass(clazz);
-        }
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void addTeacherThrowable(Teacher teacher){
+    @Transactional
+    public void addTeacherThrowable(@NotNullAndEmpty Teacher teacher) {
         teacherDAO.addTeacher(
                 teacher.getId(),
-                teacher.getName(),
-                teacher.getDepartment()
+                teacher.getName()
         );
         throw new RuntimeException("测试回滚");
     }

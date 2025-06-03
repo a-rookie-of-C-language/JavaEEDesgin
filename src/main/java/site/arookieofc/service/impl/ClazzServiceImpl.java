@@ -1,13 +1,15 @@
 package site.arookieofc.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.ioc.Autowired;
 import site.arookieofc.annotation.ioc.Component;
 import site.arookieofc.annotation.transactional.Transactional;
-import site.arookieofc.annotation.transactional.Propagation;
+import site.arookieofc.annotation.validation.NotNullAndEmpty;
+import site.arookieofc.annotation.validation.Range;
 import site.arookieofc.dao.ClazzDAO;
 import site.arookieofc.entity.Clazz;
 import site.arookieofc.entity.Student;
-import site.arookieofc.entity.Teacher;
+import site.arookieofc.processor.validation.ValidationProcessor;
 import site.arookieofc.service.ClazzService;
 import site.arookieofc.service.StudentService;
 import site.arookieofc.service.TeacherService;
@@ -17,6 +19,7 @@ import java.util.Optional;
 import java.util.Collections;
 
 @Component
+@Slf4j
 public class ClazzServiceImpl implements ClazzService {
 
     @Autowired
@@ -43,82 +46,34 @@ public class ClazzServiceImpl implements ClazzService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void addClass(Clazz clazz) {
-        if (clazz == null) {
-            throw new IllegalArgumentException("班级信息不能为空");
-        }
-        if (clazz.getId() == null || clazz.getId().trim().isEmpty()) {
-            throw new IllegalArgumentException("班级ID不能为空");
-        }
-        if (clazz.getName() == null || clazz.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("班级名称不能为空");
-        }
-        if (clazz.getTeacherId() == null || clazz.getTeacherId().trim().isEmpty()) {
-            throw new IllegalArgumentException("班主任ID不能为空");
-        }
+    @Transactional
+    public Integer addClass(@NotNullAndEmpty Clazz clazz) {
+        teacherService.getTeacherById(clazz.getTeacherId())
+                .orElseThrow(() -> new RuntimeException("老师为空"));
 
-        Optional<Teacher> teacher = teacherService.getTeacherById(clazz.getTeacherId());
-        if (teacher.isEmpty()) {
-            throw new IllegalArgumentException("指定的班主任不存在");
-        }
+        getClassById(clazz.getId())
+                .orElseThrow(() -> new IllegalArgumentException("班级ID已存在"));
 
-        Optional<Clazz> existingClazz = getClassById(clazz.getId());
-        if (existingClazz.isPresent()) {
-            throw new IllegalArgumentException("班级ID已存在");
-        }
-
-
-        int result = clazzDAO.addClass(clazz.getId(), clazz.getName(),
-                clazz.getTeacherId(), clazz.getDescription());
-        if (result <= 0) {
-            throw new RuntimeException("添加班级失败");
-        }
-
+        return clazzDAO.addClass(clazz.getId(), clazz.getName(), clazz.getTeacherId());
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateClass(Clazz clazz) {
-        if (clazz == null || clazz.getId() == null || clazz.getId().trim().isEmpty()) {
-            throw new IllegalArgumentException("无效的班级信息");
-        }
-        if (clazz.getName() == null || clazz.getName().trim().isEmpty()) {
-            throw new IllegalArgumentException("班级名称不能为空");
-        }
-        if (clazz.getTeacherId() == null || clazz.getTeacherId().trim().isEmpty()) {
-            throw new IllegalArgumentException("班主任ID不能为空");
-        }
+    @Transactional
+    public Boolean updateClass(@NotNullAndEmpty Clazz clazz) {
+        getClassById(clazz.getId())
+                .orElseThrow(() -> new RuntimeException("class ID不存在"));
+        teacherService.getTeacherById(clazz.getTeacherId())
+                .orElseThrow(() -> new IllegalArgumentException("指定的班主任不存在"));
 
-        Optional<Clazz> existingClazz = getClassById(clazz.getId());
-        if (existingClazz.isEmpty()) {
-            throw new IllegalArgumentException("班级不存在");
-        }
-
-        Optional<Teacher> teacher = teacherService.getTeacherById(clazz.getTeacherId());
-        if (teacher.isEmpty()) {
-            throw new IllegalArgumentException("指定的班主任不存在");
-        }
-
-
-        boolean updated = clazzDAO.updateClass(clazz.getName(), clazz.getTeacherId(),
-                clazz.getDescription(), clazz.getId());
-        if (!updated) {
-            throw new RuntimeException("更新班级信息失败，可能班级不存在");
-        }
+        return clazzDAO.updateClass(clazz.getName(), clazz.getTeacherId(), clazz.getId());
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void deleteClass(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("无效的班级ID");
-        }
+    @Transactional
+    public Boolean deleteClass(@NotNullAndEmpty String id) {
 
-        Optional<Clazz> clazz = getClassById(id);
-        if (clazz.isEmpty()) {
-            throw new IllegalArgumentException("班级不存在");
-        }
+        getClassById(id)
+                .orElseThrow(() -> new IllegalArgumentException("班级不存在"));
 
         List<Student> students = studentService.getStudentsByClass(id);
         if (!students.isEmpty()) {
@@ -126,39 +81,22 @@ public class ClazzServiceImpl implements ClazzService {
         }
 
 
-        boolean deleted = clazzDAO.deleteClass(id);
-        if (!deleted) {
-            throw new RuntimeException("删除班级失败，可能班级不存在");
-        }
+        return clazzDAO.deleteClass(id);
     }
 
     @Override
-    public List<Clazz> getClassesByTeacher(String teacherId) {
-        if (teacherId == null || teacherId.trim().isEmpty()) {
-            return Collections.emptyList();
-        }
-
-
+    public List<Clazz> getClassesByTeacher(@NotNullAndEmpty String teacherId) {
         List<Clazz> clazzes = clazzDAO.getClassesByTeacher(teacherId);
         return clazzes != null ? clazzes : Collections.emptyList();
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public void updateStudentCount(String classId, int increment) {
-        if (classId == null || classId.trim().isEmpty()) {
-            throw new IllegalArgumentException("班级ID不能为空");
-        }
+    @Transactional
+    public void updateStudentCount(@NotNullAndEmpty String classId,@Range(min = 0) int increment) {
+        Clazz clazz = getClassById(classId).orElseThrow(() -> new IllegalArgumentException("班级不存在"));
 
-
-        Optional<Clazz> clazzOpt = getClassById(classId);
-        if (clazzOpt.isEmpty()) {
-            throw new RuntimeException("班级不存在: " + classId);
-        }
-
-        Clazz clazz = clazzOpt.get();
         int currentCount = clazz.getStudentCount() != null ? clazz.getStudentCount() : 0;
-        int newCount = Math.max(0, currentCount + increment); // 确保不为负数
+        int newCount = Math.max(0, currentCount + increment);
 
         boolean updated = clazzDAO.updateStudentCount(newCount, classId);
         if (!updated) {
@@ -167,9 +105,14 @@ public class ClazzServiceImpl implements ClazzService {
     }
 
     @Override
-    public int getStudentCount(String classId) {
+    public int getStudentCount(@NotNullAndEmpty String classId) {
         Optional<Clazz> clazzOpt = getClassById(classId);
         return clazzOpt.map(clazz -> clazz.getStudentCount() != null ? clazz.getStudentCount() : 0)
                 .orElse(0);
+    }
+
+    @Override
+    public Optional<String> getClassIdByName(@NotNullAndEmpty String clazz) {
+        return clazzDAO.getClassIdByName(clazz);
     }
 }

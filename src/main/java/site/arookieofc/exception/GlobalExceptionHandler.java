@@ -2,15 +2,15 @@ package site.arookieofc.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import site.arookieofc.annotation.ioc.Component;
-import site.arookieofc.annotation.web.ControllerAdvice;
+import site.arookieofc.annotation.web.ControllerException;
 import site.arookieofc.annotation.web.ExceptionHandler;
 import site.arookieofc.pojo.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Slf4j
 @Component
-@ControllerAdvice
-public class GlobalExceptionAdvice {
+@ControllerException
+public class GlobalExceptionHandler {
 
     @ExceptionHandler({IllegalArgumentException.class})
     public ErrorResponse handleIllegalArgumentException(IllegalArgumentException ex) {

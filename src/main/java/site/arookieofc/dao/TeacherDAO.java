@@ -17,11 +17,11 @@ public interface TeacherDAO {
     @SQL("SELECT DISTINCT clazz FROM student WHERE clazz IS NOT NULL AND clazz != ''")
     List<String> getAllClassNames();
 
-    @SQL(value = "INSERT INTO teacher (id, name, department) VALUES (?, ?, ?)", type = "INSERT")
-    int addTeacher(String id, String name, String department);
+    @SQL(value = "INSERT INTO teacher (id, name) VALUES (?, ?)", type = "INSERT")
+    int addTeacher(String id, String name);
     
-    @SQL(value = "UPDATE teacher SET name = ?, department = ? WHERE id = ?", type = "UPDATE")
-    boolean updateTeacher(String name, String department,String id);
+    @SQL(value = "UPDATE teacher SET name = ? WHERE id = ?", type = "UPDATE")
+    boolean updateTeacher(String name,String id);
     
     @SQL(value = "DELETE FROM teacher WHERE id = ?", type = "DELETE")
     boolean deleteTeacher(String id);

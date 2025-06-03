@@ -198,12 +198,18 @@ public class SQLExecutor {
                 (java.lang.reflect.ParameterizedType) method.getGenericReturnType();
             return (Class<?>) parameterizedType.getActualTypeArguments()[0];
         } catch (Exception e) {
+            log.error("Cannot determine list generic type", e);
             throw new RuntimeException("Cannot determine list generic type", e);
         }
     }
     
     private static Object mapResultSetToEntity(ResultSet rs, Class<?> entityType) {
         try {
+            // 添加基本类型检查
+            if (isPrimitiveOrWrapper(entityType)) {
+                return rs.getObject(1); // 假设只有一列
+            }
+            
             Object entity = entityType.getDeclaredConstructor().newInstance();
             Field[] fields = entityType.getDeclaredFields();
             
@@ -224,7 +230,7 @@ public class SQLExecutor {
                         try {
                             value = rs.getObject(columnName);
                         } catch (SQLException e2) {
-                            System.out.println("Failed to map field: " + columnName);
+                            log.error("Failed to map field: {}", columnName);
                             continue;
                         }
                     }
@@ -239,14 +245,12 @@ public class SQLExecutor {
                         setter.invoke(entity, value);
                     }
                 } catch (Exception e) {
-                    System.out.println("Error setting field " + columnName + ": " + e.getMessage());
+                    log.error("Error setting field {}: {}", columnName, e.getMessage());
                 }
             }
-            
-            System.out.println("Final entity: " + entity);
             return entity;
         } catch (Exception e) {
-            System.out.println("Failed to create entity: " + e.getMessage());
+            log.error("Failed to create entity: {}", e.getMessage());
             throw new RuntimeException("Failed to map ResultSet to entity", e);
         }
     }

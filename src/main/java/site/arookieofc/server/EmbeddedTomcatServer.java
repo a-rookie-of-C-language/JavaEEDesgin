@@ -1,15 +1,14 @@
 package site.arookieofc.server;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.startup.Tomcat;
 import site.arookieofc.annotation.config.Config;
 import site.arookieofc.processor.config.ConfigProcessor;
 
 import java.io.File;
 
+@Slf4j
 public class EmbeddedTomcatServer {
-    static {
-        ConfigProcessor.injectStaticFields(EmbeddedTomcatServer.class);
-    }
 
     @Config("server.port")
     private static int port;
@@ -19,6 +18,7 @@ public class EmbeddedTomcatServer {
             port = 8080;
             System.out.println("端口配置失败，使用默认端口: " + port);
         }
+        log.info("端口:{} ", port);
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(port);
         tomcat.setBaseDir("tomcat." + port);

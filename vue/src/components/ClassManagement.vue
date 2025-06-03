@@ -74,11 +74,10 @@
         <el-table-column type="selection" width="55" />
         <el-table-column prop="id" label="班级ID" width="120" sortable />
         <el-table-column prop="name" label="班级名称" width="150" sortable />
-        <el-table-column prop="description" label="班级描述" min-width="100" show-overflow-tooltip />
         <el-table-column prop="teacherId" label="班主任ID" width="120" />
         <el-table-column label="班主任" width="120">
           <template #default="scope">
-            <span>{{ getTeachers(scope.row.teacherId) }}</span>
+            <span>{{ getTeacherName(scope.row.teacherId) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="学生人数" width="100">
@@ -169,7 +168,7 @@
         <el-table-column prop="id" label="学号" width="100" />
         <el-table-column prop="name" label="姓名" width="120" />
         <el-table-column prop="age" label="年龄" width="80" />
-        <el-table-column prop="teacherName" label="任课教师" width="120" />
+        <el-table-column prop="teacherName" label="班主任" width="120" />
       </el-table>
     </el-dialog>
   </div>
@@ -298,6 +297,13 @@ const paginatedClasses = computed(() => {
   const end = start + pagination.pageSize
   return filteredClasses.value.slice(start, end)
 })
+
+// 根据teacherId获取教师名称
+const getTeacherName = (teacherId) => {
+  if (!teacherId) return '未分配';
+  const teacher = teachers.value.find(t => t.id === teacherId);
+  return teacher ? teacher.name : '未知教师';
+}
 </script>
 
 <style scoped>

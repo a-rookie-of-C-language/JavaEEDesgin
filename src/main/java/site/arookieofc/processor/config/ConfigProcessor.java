@@ -3,8 +3,8 @@ package site.arookieofc.processor.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import lombok.extern.slf4j.Slf4j;
+import site.arookieofc.Main;
 import site.arookieofc.annotation.config.Config;
-
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -12,9 +12,60 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.processing.*;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.tools.Diagnostic;
 
 @Slf4j
-public class ConfigProcessor {
+@SupportedAnnotationTypes("site.arookieofc.annotation.config.Config")
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
+public class ConfigProcessor extends AbstractProcessor {
+    // 添加process方法实现
+    @Override
+    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+        if (annotations.isEmpty()) {
+            return false;
+        }
+        
+        log.info("处理@Config注解...");
+        
+        for (TypeElement annotation : annotations) {
+            Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(annotation);
+            
+            for (Element element : elements) {
+                if (element.getKind() == ElementKind.FIELD) {
+                    VariableElement field = (VariableElement) element;
+                    TypeElement classElement = (TypeElement) field.getEnclosingElement();
+                    
+                    Config configAnnotation = field.getAnnotation(Config.class);
+                    String keyPath = configAnnotation.value();
+                    String defaultValue = configAnnotation.defaultValue();
+                    boolean required = configAnnotation.required();
+                    
+                    log.debug("发现@Config注解字段: {}.{}, 配置路径: {}", 
+                            classElement.getQualifiedName(), field.getSimpleName(), keyPath);
+                    
+                    // 在编译时验证配置项是否存在
+                    // 注意：这里只能做静态检查，实际值的注入发生在运行时
+                    if (required && defaultValue.isEmpty()) {
+                        // 可以添加警告，但不阻止编译
+                        processingEnv.getMessager().printMessage(
+                            Diagnostic.Kind.WARNING,
+                            "Required config property '" + keyPath + "' should be provided at runtime",
+                            element
+                        );
+                    }
+                }
+            }
+        }
+        
+        return true;
+    }
+    
     private static final ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
     private static Map<String, Object> configMap;
     
@@ -28,7 +79,7 @@ public class ConfigProcessor {
     private static void autoInjectAllClasses() {
         log.debug("开始自动注入所有类的配置...");
         try {
-            String basePackage = "site.arookieofc";
+            String basePackage = Main.class.getPackage().getName();
             Set<Class<?>> classes = scanClassesWithConfigAnnotation(basePackage);
             log.debug("找到 {} 个带有配置注解的类", classes.size());
             
@@ -125,13 +176,6 @@ public class ConfigProcessor {
         }
         
         return current;
-    }
-
-    public static String getStringValue(String keyPath, String defaultValue) {
-        Object value = getConfigValue(keyPath);
-        String result = value != null ? value.toString() : defaultValue;
-        log.trace("获取字符串配置: {}, 值: {}", keyPath, result);
-        return result;
     }
 
     public static void injectStaticFields(Class<?> clazz) {

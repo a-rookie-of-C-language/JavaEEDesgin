@@ -93,7 +93,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="班主任" prop="teacherId">
-          <el-select v-model="studentForm.teacherId" placeholder="请选择班主任">
+          <el-select 
+            v-model="studentForm.teacherId" 
+            placeholder="请选择班主任"
+            :disabled="!!studentForm.clazz">
             <el-option
               v-for="teacher in teachers"
               :key="teacher.id"
@@ -211,30 +214,55 @@ const getTeachers = async () => {
   }
 }
 
-// 获取班级列表
+// 在script setup部分添加以下代码
+// 获取班级列表时同时保存班级和班主任的对应关系
+const classTeacherMap = ref({})
+
+// 修改getClasses方法
 const getClasses = async () => {
   try {
     const response = await axios.get('/class/list')
     if (response.data.code === 200) {
       classes.value = response.data.data.map(c => c.name)
+      
+      // 保存班级和班主任的对应关系
+      response.data.data.forEach(c => {
+        classTeacherMap.value[c.name] = c.teacherId
+      })
     }
   } catch (error) {
     console.error('获取班级列表失败:', error)
   }
 }
 
-// 提交表单
+// 监听班级选择变化，自动设置对应的班主任
+watch(() => studentForm.clazz, (newClass) => {
+  if (newClass && classTeacherMap.value[newClass]) {
+    studentForm.teacherId = classTeacherMap.value[newClass]
+  }
+})
+
+// 修改submitForm方法
 const submitForm = async () => {
   if (!formRef.value) return
   
   await formRef.value.validate(async (valid) => {
     if (valid) {
       try {
+        // 创建一个新对象，只包含需要的字段
+        const formData = {
+          id: studentForm.id,
+          name: studentForm.name,
+          age: studentForm.age,
+          clazz: studentForm.clazz,
+          teacherId: studentForm.teacherId
+        };
+        
         let response
         if (isEdit.value) {
-          response = await axios.put(`/student/update/${studentForm.id}`, studentForm)
+          response = await axios.put(`/student/update`, formData)
         } else {
-          response = await axios.post('/student/add', studentForm)
+          response = await axios.post('/student/add', formData)
         }
         
         if (response.data.code === 200) {

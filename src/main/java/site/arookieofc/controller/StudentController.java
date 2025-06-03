@@ -11,6 +11,9 @@ import site.arookieofc.pojo.dto.StudentDTO;
 import site.arookieofc.entity.Student;
 import site.arookieofc.service.StudentService;
 
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -81,18 +84,17 @@ public class StudentController {
         }
     }
 
-    @PutMapping("/update/{id}")
-    public Result updateStudent(@PathVariable("id") String id, @RequestBody StudentDTO studentDTO) {
+    @PutMapping("/update")
+    public Result updateStudent(@RequestBody StudentDTO studentDTO) {
         try {
             // 验证数据
-            if (studentDTO.isValid()) {
+            if (!studentDTO.isValid()) {
                 return Result.error(studentDTO.getValidationError());
             }
 
             Student student = studentDTO.toEntity();
-            student.setId(id);
             studentService.updateStudent(student);
-            return Result.success("学生 " + id + " 信息更新成功", student.toDTO());
+            return Result.success("学生信息更新成功", student.toDTO());
         } catch (Exception e) {
             return Result.error("更新学生失败: " + e.getMessage());
         }
@@ -110,66 +112,47 @@ public class StudentController {
 
     @GetMapping("/class/{clazz}")
     public Result getStudentsByClass(@PathVariable("clazz") String clazz) {
-        try {
-            List<Student> students = studentService.getStudentsByClass(clazz);
-            List<StudentDTO> studentDTOs = students.stream()
-                    .map(Student::toDTO)
-                    .collect(Collectors.toList());
-            return Result.success("获取班级学生成功", studentDTOs);
-        } catch (Exception e) {
-            return Result.error("获取班级学生失败: " + e.getMessage());
-        }
+        clazz = URLDecoder.decode(clazz, StandardCharsets.UTF_8);
+        List<Student> students = studentService.getStudentsByClass(clazz);
+        List<StudentDTO> studentDTOs = students.stream()
+                .map(Student::toDTO)
+                .collect(Collectors.toList());
+        return Result.success("获取班级学生成功", studentDTOs);
     }
 
     @GetMapping("/teacher/{teacherId}")
     public Result getStudentsByTeacher(@PathVariable("teacherId") String teacherId) {
-        try {
-            List<Student> students = studentService.getStudentsByTeacherId(teacherId);
-            List<StudentDTO> studentDTOs = students.stream()
-                    .map(Student::toDTO)
-                    .collect(Collectors.toList());
-            return Result.success("获取教师学生成功", studentDTOs);
-        } catch (Exception e) {
-            return Result.error("获取教师学生失败: " + e.getMessage());
-        }
+        List<Student> students = studentService.getStudentsByTeacherId(teacherId);
+        List<StudentDTO> studentDTOs = students.stream()
+                .map(Student::toDTO)
+                .collect(Collectors.toList());
+        return Result.success("获取教师学生成功", studentDTOs);
     }
 
     @RequestMapping("/list")
     public Result getAllStudents() {
-        try {
-            List<Student> students = studentService.getAllStudents();
-            List<StudentDTO> studentDTOs = new ArrayList<>();
-            for (Student student : students) {
-                StudentDTO dto = StudentDTO.fromEntity(student);
-                if (student.getTeacherId() != null) {
-                    Optional<Teacher> teacher = teacherService.getTeacherById(student.getTeacherId());
-                    teacher.ifPresent(value -> dto.setTeacherName(value.getName()));
-                }
-                studentDTOs.add(dto);
+        List<Student> students = studentService.getAllStudents();
+        List<StudentDTO> studentDTOs = new ArrayList<>();
+        for (Student student : students) {
+            StudentDTO dto = StudentDTO.fromEntity(student);
+            if (student.getTeacherId() != null) {
+                Optional<Teacher> teacher = teacherService.getTeacherById(student.getTeacherId());
+                teacher.ifPresent(value -> dto.setTeacherName(value.getName()));
             }
-            return Result.success(studentDTOs);
-        } catch (Exception e) {
-            return Result.error();
+            studentDTOs.add(dto);
         }
+        return Result.success(studentDTOs);
     }
 
     @GetMapping("/teachers")
     public Result getAllTeachers() {
-        try {
-            List<Teacher> teachers = teacherService.getAllTeachers();
-            return Result.success("获取教师列表成功", teachers);
-        } catch (Exception e) {
-            return Result.error("获取教师列表失败: " + e.getMessage());
-        }
+        List<Teacher> teachers = teacherService.getAllTeachers();
+        return Result.success("获取教师列表成功", teachers);
     }
 
     @GetMapping("/classes")
     public Result getAllClasses() {
-        try {
-            List<String> classes = teacherService.getAllClassNames();
-            return Result.success("获取班级列表成功", classes);
-        } catch (Exception e) {
-            return Result.error("获取班级列表失败: " + e.getMessage());
-        }
+        List<String> classes = teacherService.getAllClassNames();
+        return Result.success("获取班级列表成功", classes);
     }
 }

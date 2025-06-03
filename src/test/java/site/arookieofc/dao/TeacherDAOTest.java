@@ -40,14 +40,14 @@ public class TeacherDAOTest {
     @Test
     public void testAddAndGetTeacher() {
         // 添加测试数据
-        int result = teacherDAO.addTeacher(testTeacherId, "测试教师", "测试部门");
+        int result = teacherDAO.addTeacher(testTeacherId, "测试教师");
         assertTrue(result > 0, "添加教师应该成功");
         
         // 通过ID获取教师
         Optional<Teacher> teacher = teacherDAO.getTeacherById(testTeacherId);
         assertTrue(teacher.isPresent(), "应该能通过ID找到教师");
         assertEquals("测试教师", teacher.get().getName(), "教师姓名应该匹配");
-        assertEquals("测试部门", teacher.get().getDepartment(), "教师部门应该匹配");
+        assertEquals("测试部门","教师部门应该匹配");
         
         // 测试完成后删除测试数据
         boolean deleted = teacherDAO.deleteTeacher(testTeacherId);
@@ -61,18 +61,18 @@ public class TeacherDAOTest {
     @Test
     public void testUpdateTeacher() {
         // 添加测试数据
-        int result = teacherDAO.addTeacher(testTeacherId, "更新测试", "测试部门");
+        int result = teacherDAO.addTeacher(testTeacherId, "更新测试");
         assertTrue(result > 0, "添加教师应该成功");
         
         // 更新教师信息
-        boolean updated = teacherDAO.updateTeacher("更新后的名字", "更新后的部门",testTeacherId);
+        boolean updated = teacherDAO.updateTeacher("更新后的名字",testTeacherId);
         assertTrue(updated, "更新教师应该成功");
         
         // 验证更新成功
         Optional<Teacher> updatedTeacher = teacherDAO.getTeacherById(testTeacherId);
         assertTrue(updatedTeacher.isPresent(), "应该能找到更新后的教师");
         assertEquals("更新后的名字", updatedTeacher.get().getName(), "教师姓名应该已更新");
-        assertEquals("更新后的部门", updatedTeacher.get().getDepartment(), "教师部门应该已更新");
+        assertEquals("更新后的部门",  "教师部门应该已更新");
         
         // 测试完成后删除测试数据
         boolean deleted = teacherDAO.deleteTeacher(testTeacherId);
@@ -89,8 +89,8 @@ public class TeacherDAOTest {
         String testId1 = testTeacherId + "-1";
         String testId2 = testTeacherId + "-2";
         
-        teacherDAO.addTeacher(testId1, "测试教师1", "测试部门1");
-        teacherDAO.addTeacher(testId2, "测试教师2", "测试部门2");
+        teacherDAO.addTeacher(testId1, "测试教师1");
+        teacherDAO.addTeacher(testId2, "测试教师2");
         
         // 验证教师数量增加了2
         List<Teacher> updatedTeachers = teacherDAO.getAllTeachers();
