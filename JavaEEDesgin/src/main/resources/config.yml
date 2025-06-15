@@ -1,0 +1,25 @@
+jdbc:
+  url: jdbc:mysql://127.0.0.1:3306/student?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+  username: root
+  password: su201314
+web:
+  controller: site.arookieofc.controller
+server:
+  port: 8080
+ai:
+  url: http://127.0.0.1:11434
+  name: qwen3:14b
+  api-key:
+  # 新增AI功能配置
+  function-calling:
+    enabled: true
+    max-tokens: 4096
+    temperature: 0.7
+  system-prompt: 你是一个专业的学生管理系统助手。你可以帮助用户管理学生、教师和班级信息。请始终以友好、专业的态度回应用户，并在执行操作前确认用户的意图。
+jwt:
+  secret: 不会C的菜鸟
+  expiration: 86400000
+  issuer: JavaEEDesign
+  filter:
+    enabled: true
+    exclude-paths: /login,/register,/public,/static,/css,/js,/images,/favicon.ico,/api/auth,/ai

@@ -1,0 +1,502 @@
+开始获取班级列表...
+StudentList.vue?t=1750001448008:115 班级API响应: {code: 200, msg: '获取班级列表成功', data: Array(6)}
+StudentList.vue?t=1750001448008:118 班级原始数据: Proxy(Array) {0: {…}, 1: {…}, 2: {…}, 3: {…}, 4: {…}, 5: {…}}
+StudentList.vue?t=1750001448008:117  [Vue warn]: Invalid prop: type check failed for prop "label". Expected String | Number, got Object  
+  at <ElOption key= {id: 'C001', name: '软工一班', teacherId: 'T001', studentCount: 4} label= {id: 'C001', name: '软工一班', teacherId: 'T001', studentCount: 4} value= {id: 'C001', name: '软工一班', teacherId: 'T001', studentCount: 4} > 
+  at <ElOptions> 
+  at <ElScrollbar id="el-id-933-0" ref="scrollbarRef" tag="ul"  ... > 
+  at <ElSelectDropdown ref="menuRef" > 
+  at <ElFocusTrap trapped=false trap-on-focus-in=true focus-trap-el= <div class=​"el-popper is-pure is-light el-tooltip el-select__popper" tabindex=​"-1" aria-hidden=​"true" role=​"tooltip" id=​"el-id-933-1" data-popper-reference-hidden=​"false" data-popper-escaped=​"false" data-popper-placement=​"bottom-start" style=​"z-index:​ 2001;​ position:​ absolute;​ inset:​ 253.143px auto auto 182.286px;​ display:​ none;​">​…​</div>​  ... > 
+  at <ElPopperContent key=0 id="el-id-933-1" ref_key="contentRef"  ... > 
+  at <BaseTransition onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter> onAfterEnter=fn<onAfterShow>  ... > 
+  at <Transition name="el-zoom-in-top" onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter>  ... > 
+  at <Teleport disabled=false to="#el-popper-container-933" > 
+  at <ElTooltipContent ref_key="contentRef" ref=Ref< Proxy(Object) {contentRef: RefImpl, __v_skip: true, isFocusInsideContent: ƒ} > aria-label=undefined  ... > 
+  at <ElPopper ref_key="popperRef" ref=Ref< Proxy(Object) {triggerRef: RefImpl, popperInstanceRef: RefImpl, contentRef: RefImpl, referenceRef: RefImpl, role: ComputedRefImpl, …} > role="tooltip" > 
+  at <ElTooltip ref="tooltipRef" visible=false placement="bottom-start"  ... > 
+  at <ElSelect modelValue="" onUpdate:modelValue=fn placeholder="请选择班级"  ... > 
+  at <ElCol span=6 > 
+  at <ElRow gutter=20 > 
+  at <ElCard > 
+  at <StudentList onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) {__v_skip: true} > > 
+  at <RouterView > 
+  at <ElMain > 
+  at <ElContainer > 
+  at <App>
+warn$1 @ chunk-HX5C5AN6.js?v=487fc69e:2123
+validateProp @ chunk-HX5C5AN6.js?v=487fc69e:6502
+validateProps @ chunk-HX5C5AN6.js?v=487fc69e:6474
+initProps @ chunk-HX5C5AN6.js?v=487fc69e:6163
+setupComponent @ chunk-HX5C5AN6.js?v=487fc69e:10002
+mountComponent @ chunk-HX5C5AN6.js?v=487fc69e:7334
+processComponent @ chunk-HX5C5AN6.js?v=487fc69e:7300
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6816
+mountChildren @ chunk-HX5C5AN6.js?v=487fc69e:7048
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7230
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7757
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7715
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+componentUpdateFn @ chunk-HX5C5AN6.js?v=487fc69e:7524
+run @ chunk-HX5C5AN6.js?v=487fc69e:488
+runIfDirty @ chunk-HX5C5AN6.js?v=487fc69e:526
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2478
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+getClassList @ StudentList.vue?t=1750001448008:117
+await in getClassList
+(匿名) @ StudentList.vue?t=1750001448008:323
+await in (匿名)
+(匿名) @ chunk-HX5C5AN6.js?v=487fc69e:4929
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+callWithAsyncErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2277
+hook.__weh.hook.__weh @ chunk-HX5C5AN6.js?v=487fc69e:4909
+flushPostFlushCbs @ chunk-HX5C5AN6.js?v=487fc69e:2455
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2497
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+finalizeNavigation @ vue-router.js?v=487fc69e:2677
+(匿名) @ vue-router.js?v=487fc69e:2587
+Promise.then
+pushWithRedirect @ vue-router.js?v=487fc69e:2555
+push @ vue-router.js?v=487fc69e:2481
+install @ vue-router.js?v=487fc69e:2836
+use @ chunk-HX5C5AN6.js?v=487fc69e:5970
+(匿名) @ main.js?t=1750001448008:100
+StudentList.vue?t=1750001448008:117  [Vue warn]: Invalid prop: type check failed for prop "label". Expected String | Number, got Object  
+  at <ElOption key= {id: 'C002', name: '软工二班', teacherId: 'T002', studentCount: 4} label= {id: 'C002', name: '软工二班', teacherId: 'T002', studentCount: 4} value= {id: 'C002', name: '软工二班', teacherId: 'T002', studentCount: 4} > 
+  at <ElOptions> 
+  at <ElScrollbar id="el-id-933-0" ref="scrollbarRef" tag="ul"  ... > 
+  at <ElSelectDropdown ref="menuRef" > 
+  at <ElFocusTrap trapped=false trap-on-focus-in=true focus-trap-el= <div class=​"el-popper is-pure is-light el-tooltip el-select__popper" tabindex=​"-1" aria-hidden=​"true" role=​"tooltip" id=​"el-id-933-1" data-popper-reference-hidden=​"false" data-popper-escaped=​"false" data-popper-placement=​"bottom-start" style=​"z-index:​ 2001;​ position:​ absolute;​ inset:​ 253.143px auto auto 182.286px;​ display:​ none;​">​…​</div>​  ... > 
+  at <ElPopperContent key=0 id="el-id-933-1" ref_key="contentRef"  ... > 
+  at <BaseTransition onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter> onAfterEnter=fn<onAfterShow>  ... > 
+  at <Transition name="el-zoom-in-top" onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter>  ... > 
+  at <Teleport disabled=false to="#el-popper-container-933" > 
+  at <ElTooltipContent ref_key="contentRef" ref=Ref< Proxy(Object) {contentRef: RefImpl, __v_skip: true, isFocusInsideContent: ƒ} > aria-label=undefined  ... > 
+  at <ElPopper ref_key="popperRef" ref=Ref< Proxy(Object) {triggerRef: RefImpl, popperInstanceRef: RefImpl, contentRef: RefImpl, referenceRef: RefImpl, role: ComputedRefImpl, …} > role="tooltip" > 
+  at <ElTooltip ref="tooltipRef" visible=false placement="bottom-start"  ... > 
+  at <ElSelect modelValue="" onUpdate:modelValue=fn placeholder="请选择班级"  ... > 
+  at <ElCol span=6 > 
+  at <ElRow gutter=20 > 
+  at <ElCard > 
+  at <StudentList onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) {__v_skip: true} > > 
+  at <RouterView > 
+  at <ElMain > 
+  at <ElContainer > 
+  at <App>
+warn$1 @ chunk-HX5C5AN6.js?v=487fc69e:2123
+validateProp @ chunk-HX5C5AN6.js?v=487fc69e:6502
+validateProps @ chunk-HX5C5AN6.js?v=487fc69e:6474
+initProps @ chunk-HX5C5AN6.js?v=487fc69e:6163
+setupComponent @ chunk-HX5C5AN6.js?v=487fc69e:10002
+mountComponent @ chunk-HX5C5AN6.js?v=487fc69e:7334
+processComponent @ chunk-HX5C5AN6.js?v=487fc69e:7300
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6816
+mountChildren @ chunk-HX5C5AN6.js?v=487fc69e:7048
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7230
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7757
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7715
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+componentUpdateFn @ chunk-HX5C5AN6.js?v=487fc69e:7524
+run @ chunk-HX5C5AN6.js?v=487fc69e:488
+runIfDirty @ chunk-HX5C5AN6.js?v=487fc69e:526
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2478
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+getClassList @ StudentList.vue?t=1750001448008:117
+await in getClassList
+(匿名) @ StudentList.vue?t=1750001448008:323
+await in (匿名)
+(匿名) @ chunk-HX5C5AN6.js?v=487fc69e:4929
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+callWithAsyncErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2277
+hook.__weh.hook.__weh @ chunk-HX5C5AN6.js?v=487fc69e:4909
+flushPostFlushCbs @ chunk-HX5C5AN6.js?v=487fc69e:2455
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2497
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+finalizeNavigation @ vue-router.js?v=487fc69e:2677
+(匿名) @ vue-router.js?v=487fc69e:2587
+Promise.then
+pushWithRedirect @ vue-router.js?v=487fc69e:2555
+push @ vue-router.js?v=487fc69e:2481
+install @ vue-router.js?v=487fc69e:2836
+use @ chunk-HX5C5AN6.js?v=487fc69e:5970
+(匿名) @ main.js?t=1750001448008:100
+StudentList.vue?t=1750001448008:117  [Vue warn]: Invalid prop: type check failed for prop "label". Expected String | Number, got Object  
+  at <ElOption key= {id: 'C003', name: '软工三班', teacherId: 'T003', studentCount: 4} label= {id: 'C003', name: '软工三班', teacherId: 'T003', studentCount: 4} value= {id: 'C003', name: '软工三班', teacherId: 'T003', studentCount: 4} > 
+  at <ElOptions> 
+  at <ElScrollbar id="el-id-933-0" ref="scrollbarRef" tag="ul"  ... > 
+  at <ElSelectDropdown ref="menuRef" > 
+  at <ElFocusTrap trapped=false trap-on-focus-in=true focus-trap-el= <div class=​"el-popper is-pure is-light el-tooltip el-select__popper" tabindex=​"-1" aria-hidden=​"true" role=​"tooltip" id=​"el-id-933-1" data-popper-reference-hidden=​"false" data-popper-escaped=​"false" data-popper-placement=​"bottom-start" style=​"z-index:​ 2001;​ position:​ absolute;​ inset:​ 253.143px auto auto 182.286px;​ display:​ none;​">​…​</div>​  ... > 
+  at <ElPopperContent key=0 id="el-id-933-1" ref_key="contentRef"  ... > 
+  at <BaseTransition onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter> onAfterEnter=fn<onAfterShow>  ... > 
+  at <Transition name="el-zoom-in-top" onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter>  ... > 
+  at <Teleport disabled=false to="#el-popper-container-933" > 
+  at <ElTooltipContent ref_key="contentRef" ref=Ref< Proxy(Object) {contentRef: RefImpl, __v_skip: true, isFocusInsideContent: ƒ} > aria-label=undefined  ... > 
+  at <ElPopper ref_key="popperRef" ref=Ref< Proxy(Object) {triggerRef: RefImpl, popperInstanceRef: RefImpl, contentRef: RefImpl, referenceRef: RefImpl, role: ComputedRefImpl, …} > role="tooltip" > 
+  at <ElTooltip ref="tooltipRef" visible=false placement="bottom-start"  ... > 
+  at <ElSelect modelValue="" onUpdate:modelValue=fn placeholder="请选择班级"  ... > 
+  at <ElCol span=6 > 
+  at <ElRow gutter=20 > 
+  at <ElCard > 
+  at <StudentList onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) {__v_skip: true} > > 
+  at <RouterView > 
+  at <ElMain > 
+  at <ElContainer > 
+  at <App>
+warn$1 @ chunk-HX5C5AN6.js?v=487fc69e:2123
+validateProp @ chunk-HX5C5AN6.js?v=487fc69e:6502
+validateProps @ chunk-HX5C5AN6.js?v=487fc69e:6474
+initProps @ chunk-HX5C5AN6.js?v=487fc69e:6163
+setupComponent @ chunk-HX5C5AN6.js?v=487fc69e:10002
+mountComponent @ chunk-HX5C5AN6.js?v=487fc69e:7334
+processComponent @ chunk-HX5C5AN6.js?v=487fc69e:7300
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6816
+mountChildren @ chunk-HX5C5AN6.js?v=487fc69e:7048
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7230
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7757
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7715
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+componentUpdateFn @ chunk-HX5C5AN6.js?v=487fc69e:7524
+run @ chunk-HX5C5AN6.js?v=487fc69e:488
+runIfDirty @ chunk-HX5C5AN6.js?v=487fc69e:526
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2478
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+getClassList @ StudentList.vue?t=1750001448008:117
+await in getClassList
+(匿名) @ StudentList.vue?t=1750001448008:323
+await in (匿名)
+(匿名) @ chunk-HX5C5AN6.js?v=487fc69e:4929
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+callWithAsyncErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2277
+hook.__weh.hook.__weh @ chunk-HX5C5AN6.js?v=487fc69e:4909
+flushPostFlushCbs @ chunk-HX5C5AN6.js?v=487fc69e:2455
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2497
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+finalizeNavigation @ vue-router.js?v=487fc69e:2677
+(匿名) @ vue-router.js?v=487fc69e:2587
+Promise.then
+pushWithRedirect @ vue-router.js?v=487fc69e:2555
+push @ vue-router.js?v=487fc69e:2481
+install @ vue-router.js?v=487fc69e:2836
+use @ chunk-HX5C5AN6.js?v=487fc69e:5970
+(匿名) @ main.js?t=1750001448008:100
+StudentList.vue?t=1750001448008:117  [Vue warn]: Invalid prop: type check failed for prop "label". Expected String | Number, got Object  
+  at <ElOption key= {id: 'C004', name: '软工四班', teacherId: 'T004', studentCount: 4} label= {id: 'C004', name: '软工四班', teacherId: 'T004', studentCount: 4} value= {id: 'C004', name: '软工四班', teacherId: 'T004', studentCount: 4} > 
+  at <ElOptions> 
+  at <ElScrollbar id="el-id-933-0" ref="scrollbarRef" tag="ul"  ... > 
+  at <ElSelectDropdown ref="menuRef" > 
+  at <ElFocusTrap trapped=false trap-on-focus-in=true focus-trap-el= <div class=​"el-popper is-pure is-light el-tooltip el-select__popper" tabindex=​"-1" aria-hidden=​"true" role=​"tooltip" id=​"el-id-933-1" data-popper-reference-hidden=​"false" data-popper-escaped=​"false" data-popper-placement=​"bottom-start" style=​"z-index:​ 2001;​ position:​ absolute;​ inset:​ 253.143px auto auto 182.286px;​ display:​ none;​">​…​</div>​  ... > 
+  at <ElPopperContent key=0 id="el-id-933-1" ref_key="contentRef"  ... > 
+  at <BaseTransition onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter> onAfterEnter=fn<onAfterShow>  ... > 
+  at <Transition name="el-zoom-in-top" onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter>  ... > 
+  at <Teleport disabled=false to="#el-popper-container-933" > 
+  at <ElTooltipContent ref_key="contentRef" ref=Ref< Proxy(Object) {contentRef: RefImpl, __v_skip: true, isFocusInsideContent: ƒ} > aria-label=undefined  ... > 
+  at <ElPopper ref_key="popperRef" ref=Ref< Proxy(Object) {triggerRef: RefImpl, popperInstanceRef: RefImpl, contentRef: RefImpl, referenceRef: RefImpl, role: ComputedRefImpl, …} > role="tooltip" > 
+  at <ElTooltip ref="tooltipRef" visible=false placement="bottom-start"  ... > 
+  at <ElSelect modelValue="" onUpdate:modelValue=fn placeholder="请选择班级"  ... > 
+  at <ElCol span=6 > 
+  at <ElRow gutter=20 > 
+  at <ElCard > 
+  at <StudentList onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) {__v_skip: true} > > 
+  at <RouterView > 
+  at <ElMain > 
+  at <ElContainer > 
+  at <App>
+warn$1 @ chunk-HX5C5AN6.js?v=487fc69e:2123
+validateProp @ chunk-HX5C5AN6.js?v=487fc69e:6502
+validateProps @ chunk-HX5C5AN6.js?v=487fc69e:6474
+initProps @ chunk-HX5C5AN6.js?v=487fc69e:6163
+setupComponent @ chunk-HX5C5AN6.js?v=487fc69e:10002
+mountComponent @ chunk-HX5C5AN6.js?v=487fc69e:7334
+processComponent @ chunk-HX5C5AN6.js?v=487fc69e:7300
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6816
+mountChildren @ chunk-HX5C5AN6.js?v=487fc69e:7048
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7230
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7757
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7715
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+componentUpdateFn @ chunk-HX5C5AN6.js?v=487fc69e:7524
+run @ chunk-HX5C5AN6.js?v=487fc69e:488
+runIfDirty @ chunk-HX5C5AN6.js?v=487fc69e:526
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2478
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+getClassList @ StudentList.vue?t=1750001448008:117
+await in getClassList
+(匿名) @ StudentList.vue?t=1750001448008:323
+await in (匿名)
+(匿名) @ chunk-HX5C5AN6.js?v=487fc69e:4929
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+callWithAsyncErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2277
+hook.__weh.hook.__weh @ chunk-HX5C5AN6.js?v=487fc69e:4909
+flushPostFlushCbs @ chunk-HX5C5AN6.js?v=487fc69e:2455
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2497
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+finalizeNavigation @ vue-router.js?v=487fc69e:2677
+(匿名) @ vue-router.js?v=487fc69e:2587
+Promise.then
+pushWithRedirect @ vue-router.js?v=487fc69e:2555
+push @ vue-router.js?v=487fc69e:2481
+install @ vue-router.js?v=487fc69e:2836
+use @ chunk-HX5C5AN6.js?v=487fc69e:5970
+(匿名) @ main.js?t=1750001448008:100
+StudentList.vue?t=1750001448008:117  [Vue warn]: Invalid prop: type check failed for prop "label". Expected String | Number, got Object  
+  at <ElOption key= {id: 'C005', name: '人工智能一班', teacherId: 'T005', studentCount: 4} label= {id: 'C005', name: '人工智能一班', teacherId: 'T005', studentCount: 4} value= {id: 'C005', name: '人工智能一班', teacherId: 'T005', studentCount: 4} > 
+  at <ElOptions> 
+  at <ElScrollbar id="el-id-933-0" ref="scrollbarRef" tag="ul"  ... > 
+  at <ElSelectDropdown ref="menuRef" > 
+  at <ElFocusTrap trapped=false trap-on-focus-in=true focus-trap-el= <div class=​"el-popper is-pure is-light el-tooltip el-select__popper" tabindex=​"-1" aria-hidden=​"true" role=​"tooltip" id=​"el-id-933-1" data-popper-reference-hidden=​"false" data-popper-escaped=​"false" data-popper-placement=​"bottom-start" style=​"z-index:​ 2001;​ position:​ absolute;​ inset:​ 253.143px auto auto 182.286px;​ display:​ none;​">​…​</div>​  ... > 
+  at <ElPopperContent key=0 id="el-id-933-1" ref_key="contentRef"  ... > 
+  at <BaseTransition onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter> onAfterEnter=fn<onAfterShow>  ... > 
+  at <Transition name="el-zoom-in-top" onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter>  ... > 
+  at <Teleport disabled=false to="#el-popper-container-933" > 
+  at <ElTooltipContent ref_key="contentRef" ref=Ref< Proxy(Object) {contentRef: RefImpl, __v_skip: true, isFocusInsideContent: ƒ} > aria-label=undefined  ... > 
+  at <ElPopper ref_key="popperRef" ref=Ref< Proxy(Object) {triggerRef: RefImpl, popperInstanceRef: RefImpl, contentRef: RefImpl, referenceRef: RefImpl, role: ComputedRefImpl, …} > role="tooltip" > 
+  at <ElTooltip ref="tooltipRef" visible=false placement="bottom-start"  ... > 
+  at <ElSelect modelValue="" onUpdate:modelValue=fn placeholder="请选择班级"  ... > 
+  at <ElCol span=6 > 
+  at <ElRow gutter=20 > 
+  at <ElCard > 
+  at <StudentList onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) {__v_skip: true} > > 
+  at <RouterView > 
+  at <ElMain > 
+  at <ElContainer > 
+  at <App>
+warn$1 @ chunk-HX5C5AN6.js?v=487fc69e:2123
+validateProp @ chunk-HX5C5AN6.js?v=487fc69e:6502
+validateProps @ chunk-HX5C5AN6.js?v=487fc69e:6474
+initProps @ chunk-HX5C5AN6.js?v=487fc69e:6163
+setupComponent @ chunk-HX5C5AN6.js?v=487fc69e:10002
+mountComponent @ chunk-HX5C5AN6.js?v=487fc69e:7334
+processComponent @ chunk-HX5C5AN6.js?v=487fc69e:7300
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6816
+mountChildren @ chunk-HX5C5AN6.js?v=487fc69e:7048
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7230
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7757
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7715
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+componentUpdateFn @ chunk-HX5C5AN6.js?v=487fc69e:7524
+run @ chunk-HX5C5AN6.js?v=487fc69e:488
+runIfDirty @ chunk-HX5C5AN6.js?v=487fc69e:526
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2478
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+getClassList @ StudentList.vue?t=1750001448008:117
+await in getClassList
+(匿名) @ StudentList.vue?t=1750001448008:323
+await in (匿名)
+(匿名) @ chunk-HX5C5AN6.js?v=487fc69e:4929
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+callWithAsyncErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2277
+hook.__weh.hook.__weh @ chunk-HX5C5AN6.js?v=487fc69e:4909
+flushPostFlushCbs @ chunk-HX5C5AN6.js?v=487fc69e:2455
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2497
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+finalizeNavigation @ vue-router.js?v=487fc69e:2677
+(匿名) @ vue-router.js?v=487fc69e:2587
+Promise.then
+pushWithRedirect @ vue-router.js?v=487fc69e:2555
+push @ vue-router.js?v=487fc69e:2481
+install @ vue-router.js?v=487fc69e:2836
+use @ chunk-HX5C5AN6.js?v=487fc69e:5970
+(匿名) @ main.js?t=1750001448008:100
+StudentList.vue?t=1750001448008:117  [Vue warn]: Invalid prop: type check failed for prop "label". Expected String | Number, got Object  
+  at <ElOption key= {id: 'C006', name: '人工智能二班', teacherId: 'T006'} label= {id: 'C006', name: '人工智能二班', teacherId: 'T006'} value= {id: 'C006', name: '人工智能二班', teacherId: 'T006'} > 
+  at <ElOptions> 
+  at <ElScrollbar id="el-id-933-0" ref="scrollbarRef" tag="ul"  ... > 
+  at <ElSelectDropdown ref="menuRef" > 
+  at <ElFocusTrap trapped=false trap-on-focus-in=true focus-trap-el= <div class=​"el-popper is-pure is-light el-tooltip el-select__popper" tabindex=​"-1" aria-hidden=​"true" role=​"tooltip" id=​"el-id-933-1" data-popper-reference-hidden=​"false" data-popper-escaped=​"false" data-popper-placement=​"bottom-start" style=​"z-index:​ 2001;​ position:​ absolute;​ inset:​ 253.143px auto auto 182.286px;​ display:​ none;​">​…​</div>​  ... > 
+  at <ElPopperContent key=0 id="el-id-933-1" ref_key="contentRef"  ... > 
+  at <BaseTransition onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter> onAfterEnter=fn<onAfterShow>  ... > 
+  at <Transition name="el-zoom-in-top" onAfterLeave=fn<onTransitionLeave> onBeforeEnter=fn<onBeforeEnter>  ... > 
+  at <Teleport disabled=false to="#el-popper-container-933" > 
+  at <ElTooltipContent ref_key="contentRef" ref=Ref< Proxy(Object) {contentRef: RefImpl, __v_skip: true, isFocusInsideContent: ƒ} > aria-label=undefined  ... > 
+  at <ElPopper ref_key="popperRef" ref=Ref< Proxy(Object) {triggerRef: RefImpl, popperInstanceRef: RefImpl, contentRef: RefImpl, referenceRef: RefImpl, role: ComputedRefImpl, …} > role="tooltip" > 
+  at <ElTooltip ref="tooltipRef" visible=false placement="bottom-start"  ... > 
+  at <ElSelect modelValue="" onUpdate:modelValue=fn placeholder="请选择班级"  ... > 
+  at <ElCol span=6 > 
+  at <ElRow gutter=20 > 
+  at <ElCard > 
+  at <StudentList onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) {__v_skip: true} > > 
+  at <RouterView > 
+  at <ElMain > 
+  at <ElContainer > 
+  at <App>
+warn$1 @ chunk-HX5C5AN6.js?v=487fc69e:2123
+validateProp @ chunk-HX5C5AN6.js?v=487fc69e:6502
+validateProps @ chunk-HX5C5AN6.js?v=487fc69e:6474
+initProps @ chunk-HX5C5AN6.js?v=487fc69e:6163
+setupComponent @ chunk-HX5C5AN6.js?v=487fc69e:10002
+mountComponent @ chunk-HX5C5AN6.js?v=487fc69e:7334
+processComponent @ chunk-HX5C5AN6.js?v=487fc69e:7300
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6816
+mountChildren @ chunk-HX5C5AN6.js?v=487fc69e:7048
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7230
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7757
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+patchKeyedChildren @ chunk-HX5C5AN6.js?v=487fc69e:7715
+patchChildren @ chunk-HX5C5AN6.js?v=487fc69e:7629
+processFragment @ chunk-HX5C5AN6.js?v=487fc69e:7274
+patch @ chunk-HX5C5AN6.js?v=487fc69e:6790
+componentUpdateFn @ chunk-HX5C5AN6.js?v=487fc69e:7524
+run @ chunk-HX5C5AN6.js?v=487fc69e:488
+runIfDirty @ chunk-HX5C5AN6.js?v=487fc69e:526
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2478
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+getClassList @ StudentList.vue?t=1750001448008:117
+await in getClassList
+(匿名) @ StudentList.vue?t=1750001448008:323
+await in (匿名)
+(匿名) @ chunk-HX5C5AN6.js?v=487fc69e:4929
+callWithErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2270
+callWithAsyncErrorHandling @ chunk-HX5C5AN6.js?v=487fc69e:2277
+hook.__weh.hook.__weh @ chunk-HX5C5AN6.js?v=487fc69e:4909
+flushPostFlushCbs @ chunk-HX5C5AN6.js?v=487fc69e:2455
+flushJobs @ chunk-HX5C5AN6.js?v=487fc69e:2497
+Promise.then
+queueFlush @ chunk-HX5C5AN6.js?v=487fc69e:2392
+queueJob @ chunk-HX5C5AN6.js?v=487fc69e:2387
+effect2.scheduler @ chunk-HX5C5AN6.js?v=487fc69e:7566
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:516
+endBatch @ chunk-HX5C5AN6.js?v=487fc69e:574
+notify @ chunk-HX5C5AN6.js?v=487fc69e:834
+trigger @ chunk-HX5C5AN6.js?v=487fc69e:808
+set value @ chunk-HX5C5AN6.js?v=487fc69e:1680
+finalizeNavigation @ vue-router.js?v=487fc69e:2677
+(匿名) @ vue-router.js?v=487fc69e:2587
+Promise.then
+pushWithRedirect @ vue-router.js?v=487fc69e:2555
+push @ vue-router.js?v=487fc69e:2481
+install @ vue-router.js?v=487fc69e:2836
+use @ chunk-HX5C5AN6.js?v=487fc69e:5970
+(匿名) @ main.js?t=1750001448008:100
+[新] 使用 Edge 中的 Copilot 来解释控制台错误: 单击
+         
+         以说明错误。
+        了解更多信息
+        不再显示
+StudentList.vue?t=1750001448008:120 处理后的班级数据: Proxy(Array) {}
+StudentList.vue?t=1750001448008:88 Proxy(Array) {0: {…}, 1: {…}, 2: {…}, 3: {…}, 4: {…}, 5: {…}, 6: {…}, 7: {…}, 8: {…}, 9: {…}}
