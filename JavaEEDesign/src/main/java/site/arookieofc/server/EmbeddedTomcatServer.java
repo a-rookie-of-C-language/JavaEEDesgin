@@ -1,0 +1,40 @@
+package site.arookieofc.server;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.startup.Tomcat;
+import site.arookieofc.annotation.config.Config;
+import java.io.File;
+
+@Slf4j
+public class EmbeddedTomcatServer {
+
+    @Config("server.port")
+    private static int port;
+
+    private static Tomcat tomcat;
+
+    public static void start() throws Exception {
+        if (port == 0) {
+            port = 8080;
+            System.out.println("端口配置失败，使用默认端口: " + port);
+        }
+        log.info("端口:{} ", port);
+        tomcat = new Tomcat();
+        tomcat.setPort(port);
+        tomcat.setBaseDir("tomcat." + port);
+        String webappDirLocation = "src/main/webapp";
+        File webappDir = new File(webappDirLocation);
+        tomcat.addWebapp("", webappDir.getAbsolutePath());
+        tomcat.start();
+        tomcat.getConnector().getLocalPort();
+        // 移除阻塞调用 tomcat.getServer().await();
+        log.info("Web服务器已启动，端口: {}", port);
+    }
+    
+    // 添加等待方法，在所有服务启动后调用
+    public static void await() {
+        if (tomcat != null) {
+            tomcat.getServer().await();
+        }
+    }
+}
