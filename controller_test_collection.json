@@ -1,0 +1,613 @@
+{
+    "info": {
+      "name": "JavaEE Controller API Tests",
+      "description": "Controller层API测试集合，包含正确和错误参数测试",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Student Controller Tests",
+        "item": [
+          {
+            "name": "获取学生分页列表 - 正确参数",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/page?page=1&size=10",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "page"],
+                "query": [
+                  {"key": "page", "value": "1"},
+                  {"key": "size", "value": "10"}
+                ]
+              }
+            }
+          },
+          {
+            "name": "获取学生分页列表 - 错误参数(page为负数)",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/page?page=-1&size=10",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "page"],
+                "query": [
+                  {"key": "page", "value": "-1"},
+                  {"key": "size", "value": "10"}
+                ]
+              }
+            }
+          },
+          {
+            "name": "获取学生分页列表 - 错误参数(page为空)",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/page?size=10",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "page"],
+                "query": [
+                  {"key": "size", "value": "10"}
+                ]
+              }
+            }
+          },
+          {
+            "name": "获取学生信息 - 正确参数",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/info/1",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "info", "1"]
+              }
+            }
+          },
+          {
+            "name": "获取学生信息 - 错误参数(id为空)",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/info/",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "info", ""]
+              }
+            }
+          },
+          {
+            "name": "添加学生 - 正确参数",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"11\",\n  \"name\": \"张三\",\n  \"age\": 20,\n  \"teacherId\": \"T001\",\n  \"clazzId\": \"C001\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/student/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "add"]
+              }
+            }
+          },
+          {
+            "name": "添加学生 - 错误参数(姓名为空)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"12\",\n  \"name\": \"\",\n  \"age\": 20,\n  \"teacherId\": \"T001\",\n  \"clazzId\": \"C001\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/student/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "add"]
+              }
+            }
+          },
+          {
+            "name": "添加学生 - 错误参数(年龄为负数)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"13\",\n  \"name\": \"李四\",\n  \"age\": -5,\n  \"teacherId\": \"T001\",\n  \"clazzId\": \"C001\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/student/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "add"]
+              }
+            }
+          },
+          {
+            "name": "更新学生 - 正确参数",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"1\",\n  \"name\": \"张三更新\",\n  \"age\": 21,\n  \"teacherId\": \"T002\",\n  \"clazzId\": \"C002\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/student/update",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "update"]
+              }
+            }
+          },
+          {
+            "name": "更新学生 - 错误参数(id为空)",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"张三更新\",\n  \"age\": 21,\n  \"teacherId\": \"T002\",\n  \"clazzId\": \"C002\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/student/update",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "update"]
+              }
+            }
+          },
+          {
+            "name": "删除学生 - 正确参数",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/delete/1",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "delete", "1"]
+              }
+            }
+          },
+          {
+            "name": "删除学生 - 错误参数(id为空)",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/delete/",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "delete", ""]
+              }
+            }
+          },
+          {
+            "name": "根据班级获取学生 - 正确参数",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/class/计算机1班",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "class", "计算机1班"]
+              }
+            }
+          },
+          {
+            "name": "根据教师获取学生 - 正确参数",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/teacher/T001",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "teacher", "T001"]
+              }
+            }
+          },
+          {
+            "name": "获取所有学生",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/student/list",
+                "host": ["{{baseUrl}}"],
+                "path": ["student", "list"]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Teacher Controller Tests",
+        "item": [
+          {
+            "name": "获取所有教师",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/teacher/list",
+                "host": ["{{baseUrl}}"],
+                "path": ["teacher", "list"]
+              }
+            }
+          },
+          {
+            "name": "添加教师 - 正确参数",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"T003\",\n  \"name\": \"王老师\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/teacher/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["teacher", "add"]
+              }
+            }
+          },
+          {
+            "name": "添加教师 - 错误参数(姓名为空)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"T004\",\n  \"name\": \"\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/teacher/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["teacher", "add"]
+              }
+            }
+          },
+          {
+            "name": "添加教师 - 错误参数(缺少name字段)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"T005\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/teacher/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["teacher", "add"]
+              }
+            }
+          },
+          {
+            "name": "更新教师 - 正确参数",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"王老师更新\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/teacher/update/T001",
+                "host": ["{{baseUrl}}"],
+                "path": ["teacher", "update", "T001"]
+              }
+            }
+          },
+          {
+            "name": "更新教师 - 错误参数(id为空)",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"王老师更新\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/teacher/update/",
+                "host": ["{{baseUrl}}"],
+                "path": ["teacher", "update", ""]
+              }
+            }
+          },
+          {
+            "name": "删除教师 - 正确参数",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/teacher/delete/T001",
+                "host": ["{{baseUrl}}"],
+                "path": ["teacher", "delete", "T001"]
+              }
+            }
+          },
+          {
+            "name": "删除教师 - 错误参数(id为空)",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/teacher/delete/",
+                "host": ["{{baseUrl}}"],
+                "path": ["teacher", "delete", ""]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Class Controller Tests",
+        "item": [
+          {
+            "name": "获取所有班级",
+            "request": {
+              "method": "GET",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/class/list",
+                "host": ["{{baseUrl}}"],
+                "path": ["class", "list"]
+              }
+            }
+          },
+          {
+            "name": "添加班级 - 正确参数",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"C003\",\n  \"name\": \"计算机1班\",\n  \"teacherId\": \"T001\",\n  \"studentCount\": 30\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/class/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["class", "add"]
+              }
+            }
+          },
+          {
+            "name": "添加班级 - 错误参数(班级名为空)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"C004\",\n  \"name\": \"\",\n  \"teacherId\": \"T001\",\n  \"studentCount\": 30\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/class/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["class", "add"]
+              }
+            }
+          },
+          {
+            "name": "添加班级 - 错误参数(学生数量为负数)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"id\": \"C005\",\n  \"name\": \"计算机2班\",\n  \"teacherId\": \"T001\",\n  \"studentCount\": -5\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/class/add",
+                "host": ["{{baseUrl}}"],
+                "path": ["class", "add"]
+              }
+            }
+          },
+          {
+            "name": "更新班级 - 正确参数",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"计算机1班更新\",\n  \"teacherId\": \"T002\",\n  \"studentCount\": 35\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/class/update/C001",
+                "host": ["{{baseUrl}}"],
+                "path": ["class", "update", "C001"]
+              }
+            }
+          },
+          {
+            "name": "更新班级 - 错误参数(id为空)",
+            "request": {
+              "method": "PUT",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"name\": \"计算机1班更新\",\n  \"teacherId\": \"T002\",\n  \"studentCount\": 35\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/class/update/",
+                "host": ["{{baseUrl}}"],
+                "path": ["class", "update", ""]
+              }
+            }
+          },
+          {
+            "name": "删除班级 - 正确参数",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/class/delete/C001",
+                "host": ["{{baseUrl}}"],
+                "path": ["class", "delete", "C001"]
+              }
+            }
+          },
+          {
+            "name": "删除班级 - 错误参数(id为空)",
+            "request": {
+              "method": "DELETE",
+              "header": [
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "url": {
+                "raw": "{{baseUrl}}/class/delete/",
+                "host": ["{{baseUrl}}"],
+                "path": ["class", "delete", ""]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "AI Controller Tests",
+        "item": [
+          {
+            "name": "AI聊天流式响应 - 正确参数",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"message\": \"你好，请介绍一下Java\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/ai/chat-stream",
+                "host": ["{{baseUrl}}"],
+                "path": ["ai", "chat-stream"]
+              }
+            }
+          },
+          {
+            "name": "AI聊天流式响应 - 错误参数(message为空)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"message\": \"\"\n}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/ai/chat-stream",
+                "host": ["{{baseUrl}}"],
+                "path": ["ai", "chat-stream"]
+              }
+            }
+          },
+          {
+            "name": "AI聊天流式响应 - 错误参数(缺少message字段)",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=UTF-8"},
+                {"key": "Accept-Charset", "value": "UTF-8"}
+              ],
+              "body": {
+                "mode": "raw",
+                "raw": "{}"
+              },
+              "url": {
+                "raw": "{{baseUrl}}/ai/chat-stream",
+                "host": ["{{baseUrl}}"],
+                "path": ["ai", "chat-stream"]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "variable": [
+      {
+        "key": "baseUrl",
+        "value": "http://localhost:8080",
+        "type": "string"
+      }
+    ]
+  }

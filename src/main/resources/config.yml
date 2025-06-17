@@ -1,0 +1,31 @@
+jdbc:
+  url: jdbc:mysql://127.0.0.1:3306/student?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+  username: root
+  password: su201314
+web:
+  controller: site.arookieofc.controller
+server:
+  port: 8080
+# MCP服务器配置
+mcp:
+  schema:
+    file: mcp-schemas.json
+  server:
+    port: 3001
+    name: business-mcp-server
+    version: 1.0.0
+    sse-endpoint: /sse
+    message-endpoint: /message
+ai:
+  url: http://127.0.0.1:11434
+  name: qwen3:14b
+  api-key:
+  timeout:
+    request: 60000      # 连接超时时间 (60秒)
+jwt:
+  secret: 不会C的菜鸟
+  expiration: 86400000
+  issuer: JavaEEDesign
+  filter:
+    enabled: true
+    exclude-paths: /login,/register,/public,/static,/css,/js,/images,/favicon.ico,/api/auth,/ai
